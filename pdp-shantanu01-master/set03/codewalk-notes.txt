@@ -1,0 +1,18 @@
+TA-1 Name:- Amit Kulkarni
+TA-2 Name:- Vinay Patil
+
+Student CCIS ID:- shantanu01
+Design Grade:- AB
+Correctness Score:- 15/15
+Presentation Grade:- A
+
+TA Comments on Presentation:- 
+- Couldn't rectify the design strategy when asked
+
+TA Comments on Design:-
+- Test coverage not 100%
+- Redundant data in the world mx and my
+- Empty circle is not needed
+- Use global constants
+- Error messages should be more meaningful
+- Design strategy incorrect

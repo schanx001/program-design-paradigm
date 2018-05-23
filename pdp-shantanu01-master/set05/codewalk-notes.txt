@@ -1,0 +1,15 @@
+TA-1 Name : Amit Kulkarni 
+TA-2 Name : Shailesh Pujari 
+CCS ID: shantanu01
+
+TA Comments on Design:-
+-	Good design for q1.rkt. Made use of HOF wherever possible
+-	Same for q2.rkt. Good alternatives for bad-solution implemented
+-	Keep up the good work
+
+TA Comments on Presentation:-
+-	Able to answer questions asked related to behavior-correct?
+
+Design Grade:  A
+Presentation Grade: A
+Correctness Score: 14/15

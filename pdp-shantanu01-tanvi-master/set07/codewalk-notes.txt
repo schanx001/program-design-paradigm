@@ -1,0 +1,30 @@
+TA-1 Name:- Kovit
+TA-2 Name:- Harshil
+
+Design Grade for q1:- A
+Design Grade for q2:- A
+Correctness Score for q1:- 15/15
+Correctness Score for q2:- 15/15
+
+TA Comments on Design for q1:-
+  -- bad method names helper
+  -- 
+
+TA Comments on Design for q2:-
+  -- template for loi needs to call inst-fn
+  -- make-probe Direction, no of args were more
+  -- not using foldl
+  -- not using constant for 2
+  
+
+Student1 CCIS ID:- shantanu
+Presentation Grade:- A
+TA Comments on Presentation:-
+  -- which hof could u use for probe inst
+    -- couldnt answer
+
+Student2 CCIS ID:- tanvi
+Presentation Grade:- A
+TA Comments on Presentation:-
+  -- which hof could u use for probe inst
+    -- couldnt answer

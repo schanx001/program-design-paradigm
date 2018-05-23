@@ -1,0 +1,22 @@
+TA-1 Name:- Rama
+TA-2 Name:- Amit N
+
+Design Grade for q1:- A
+Design Grade for q2:- A
+
+Correctness Score for q1:- 15/15
+Correctness Score for q2:- 8/15
+
+TA Comments on Design for q1:-
+
+TA Comments on Design for q2:-
+- block constructor missing values in interpretation.
+- interp for teammate was missing
+
+Student1 CCIS ID:- shantanu01
+Presentation Grade:- A
+TA Comments on Presentation:-
+
+Student2 CCIS ID:- rohitdr786
+Presentation Grade:- A
+TA Comments on Presentation:-

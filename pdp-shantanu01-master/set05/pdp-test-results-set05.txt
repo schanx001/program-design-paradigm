@@ -1,0 +1,268 @@
+PDP Test Report for set05
+
+
+Test Name: q1-tests
+Definitions:
+	(define YELLOW-SLIP1 (make-slip "yellow" "John" "Snow"))
+	(define YELLOW-SLIP2 (make-slip "yellow" "Snow" "John"))
+	(define BLUE-SLIP1 (make-slip "blue" "Eddard" "Stark"))
+	(define BLUE-SLIP2 (make-slip "blue" "Stark" "Eddard"))
+	(define BLUE-SLIP3 (make-slip "blue" "Arya" "Stark"))
+	(define BLUE-SLIP4 (make-slip "blue" "Stark" "Sansa"))
+	(define YELLOW-SLIP3 (make-slip "yellow" "Arya" "Stark"))
+	(define YELLOW-SLIP4 (make-slip "yellow" "Stark" "Sansa"))
+	(define DUPLI-LIST-YELLOW (list YELLOW-SLIP1 YELLOW-SLIP2))
+	(define DUPLI-LIST-BLUE (list BLUE-SLIP1 BLUE-SLIP2))
+	(define NON-DUPLI-LIST-BLUE (list BLUE-SLIP3 BLUE-SLIP4))
+	(define NON-DUPLI-LIST-YELLOW (list YELLOW-SLIP3 YELLOW-SLIP4))
+	(define MIX-LIST-BLUE (append DUPLI-LIST-BLUE NON-DUPLI-LIST-BLUE))
+	(define MIX-LIST-YELLOW (append DUPLI-LIST-YELLOW NON-DUPLI-LIST-YELLOW))
+	(define MIX-LIST-BLUE-YELLOW-DUPLI (append DUPLI-LIST-YELLOW DUPLI-LIST-BLUE))
+	(define MIX-LIST-BLUE-YELLOW-NON-DUPLI
+	  (append NON-DUPLI-LIST-YELLOW NON-DUPLI-LIST-BLUE))
+	(define MIX-LIST
+	  (append
+	   NON-DUPLI-LIST-YELLOW
+	   NON-DUPLI-LIST-BLUE
+	   DUPLI-LIST-YELLOW
+	   DUPLI-LIST-BLUE))
+	(define FELLEISEN-LIST1 (cons YELLOW-SLIP1 NON-DUPLI-LIST-YELLOW))
+	(define FELLEISEN-LIST2 (cons YELLOW-SLIP2 NON-DUPLI-LIST-YELLOW))
+	(define SHIVERS-LIST1 (cons BLUE-SLIP1 NON-DUPLI-LIST-BLUE))
+	(define SHIVERS-LIST2 (cons BLUE-SLIP2 NON-DUPLI-LIST-BLUE))
+
+Test Case: 
+  (test-equal?
+   "TC#1: Duplications detected correctly?"
+   (possible-roster? DUPLI-LIST-BLUE)
+   #f)
+Test Result: Success
+
+Test Case: 
+  (test-equal?
+   "TC#2: Duplications detected correctly?"
+   (possible-roster? MIX-LIST-BLUE)
+   #f)
+Test Result: Success
+
+Test Case: 
+  (test-equal?
+   "TC#3: Duplications detected correctly?"
+   (possible-roster? NON-DUPLI-LIST-BLUE)
+   #t)
+Test Result: Success
+
+Test Case: 
+  (test-equal?
+   "TC#4: Can we check correctly if a list is a felleisen-list"
+   (acceptable-felleisen-answer? MIX-LIST FELLEISEN-LIST1)
+   #t)
+Test Result: Success
+
+Test Case: 
+  (test-equal?
+   "TC#5: Can we check correctly if a list is a felleisen-list"
+   (acceptable-felleisen-answer? MIX-LIST FELLEISEN-LIST2)
+   #t)
+Test Result: Success
+
+Test Case: 
+  (test-equal?
+   "TC#6: Can we check correctly if a list is a felleisen-list"
+   (acceptable-felleisen-answer? MIX-LIST-YELLOW FELLEISEN-LIST2)
+   #t)
+Test Result: Success
+
+Test Case: 
+  (test-equal?
+   "TC#7: Correct felleisen roster?"
+   (or (set-equal? (felleisen-roster MIX-LIST) FELLEISEN-LIST1)
+       (set-equal? (felleisen-roster MIX-LIST) FELLEISEN-LIST2))
+   #t)
+Test Result: Success
+
+Test Case: 
+  (test-equal?
+   "TC#8: Correct felleisen roster?"
+   (felleisen-roster MIX-LIST-BLUE)
+   '())
+Test Result: Success
+
+Test Case: 
+  (test-equal?
+   "TC#9: Correct shivers roster?"
+   (or (set-equal? (shivers-roster MIX-LIST) SHIVERS-LIST1)
+       (set-equal? (shivers-roster MIX-LIST) SHIVERS-LIST2))
+   #t)
+Test Result: Success
+
+Test Case: 
+  (test-equal?
+   "TC#10: Correct shivers roster?"
+   (shivers-roster MIX-LIST-YELLOW)
+   '())
+Test Result: Success
+
+
+Results for Suite q1-tests:
+  Test Successes: 10
+  Test Failures: 0
+  Test Errors: 0
+
+Raw Score: 10/10
+Normalized Score: 15/15
+
+
+Test Name: q2-tests
+Definitions:
+	(define E1 (make-enrollment "N1" "C1"))
+	(define E2 (make-enrollment "N2" "C1"))
+	(define E3 (make-enrollment "N2" "C2"))
+	(define E4 (make-enrollment "N4" "C2"))
+	(define E5 (make-enrollment "N5" "C2"))
+	(define E6 (make-enrollment "N6" "C2"))
+	(define E7 (make-enrollment "N7" "C3"))
+	(define E8 (make-enrollment "N8" "C3"))
+	(define E9 (make-enrollment "N9" "C3"))
+	(define CR (list E1 E2 E3 E4 E5 E6 E7 E8 E9))
+	(define (rosters-enrls lor)
+	  (cond
+	   ((empty? lor) '())
+	   (else
+	    (foldr
+	     (λ (rost b)
+	       (append
+	        (map
+	         (λ (std) (make-enrollment std (roster-classname rost)))
+	         (roster-students rost))
+	        b))
+	     '()
+	     lor))))
+	(define (mem? i lst) (ormap (λ (x) (equal? x i)) lst))
+	(define (proposed-solution-calc p soe)
+	  (cond
+	   ((empty? soe) p)
+	   (else
+	    (local
+	     ((define cls (enrollment-class (first soe)))
+	      (define loe (filter (λ (x) (equal? (enrollment-class x) cls)) soe))
+	      (define los (map (λ (x) (enrollment-student x)) loe))
+	      (define fl
+	        (foldr (λ (enrl b) (if (mem? enrl b) b (cons enrl b))) '() los))
+	      (define nloe
+	        (filter (λ (x) (not (equal? (enrollment-class x) cls))) soe))
+	      (define class-roster (make-roster cls fl)))
+	     (proposed-solution-calc (cons class-roster p) nloe)))))
+	(define (proposed-solution soe) (proposed-solution-calc '() soe))
+	(define (proposed-solution-missing-class soe)
+	  (local
+	   ((define cr (proposed-solution-calc '() soe)))
+	   (cond
+	    ((empty? cr) (list (make-roster "class-error" '())))
+	    (else (rest cr)))))
+	(define (proposed-solution-missing-student soe)
+	  (local
+	   ((define cr (proposed-solution-calc '() soe)))
+	   (cond
+	    ((empty? cr) (list (make-roster "class-error" '())))
+	    (else (cons (remove-student (first cr)) (rest cr))))))
+	(define (remove-student r) (make-roster (roster-classname r) (list "error")))
+	(define (proposed-solution-duplicate-class soe)
+	  (local
+	   ((define cr (proposed-solution-calc '() soe)))
+	   (cond
+	    ((empty? cr) (list (make-roster "class-error" '())))
+	    (else (cons (first cr) cr)))))
+	(define (proposed-solution-duplicate-student soe)
+	  (local
+	   ((define cr (proposed-solution-calc '() soe)))
+	   (cond
+	    ((empty? cr) (list (make-roster "class-error" '())))
+	    (else (cons (duplicate-student (first cr)) (rest cr))))))
+	(define (duplicate-student r)
+	  (make-roster
+	   (roster-classname r)
+	   (cons (first (roster-students r)) (roster-students r))))
+	(define (proposed-solution-no-student soe)
+	  (local
+	   ((define cr (proposed-solution-calc '() soe)))
+	   (cond
+	    ((empty? cr) (list (make-roster "class-error" '())))
+	    (else (cons (remove-students (first cr)) (rest cr))))))
+	(define (remove-students r) (make-roster (roster-classname r) '()))
+	(define (proposed-solution-empty-non-empty soe)
+	  (local
+	   ((define cr (proposed-solution-calc '() soe)))
+	   (cond ((empty? cr) (list (make-roster "class-error" '()))) (else '()))))
+
+Test Case: 
+  (test-equal?
+   "TC#1: behavior-correct? works when the sol-fn is correct"
+   (behavior-correct? proposed-solution CR)
+   #t)
+Test Result: Success
+
+Test Case: 
+  (test-equal?
+   "TC#2: behavior-correct? works when the sol-fn returns a roster with missing class"
+   (behavior-correct? proposed-solution-missing-class CR)
+   #f)
+Test Result: Success
+
+Test Case: 
+  (test-equal?
+   "TC#3: behavior-correct? works when the sol-fn returns a roster with a class that is missing a student"
+   (behavior-correct? proposed-solution-missing-student CR)
+   #f)
+Test Result: Success
+
+Test Case: 
+  (test-equal?
+   "TC#6: behavior-correct? works when the sol-fn returns a roster with a class that has no students"
+   (behavior-correct? proposed-solution-no-student CR)
+   #f)
+Test Result: Success
+
+Test Case: 
+  (test-equal?
+   "TC#7: behavior-correct? works when the sol-fn returns an empty roster"
+   (behavior-correct? proposed-solution-empty-non-empty CR)
+   #f)
+Test Result: Success
+
+Test Case: 
+  (test-equal?
+   "TC#8: behavior-correct? works when the sol-fn was passed an empty SetOfEnrollmentAssertions"
+   (behavior-correct? proposed-solution-empty-non-empty '())
+   #f)
+Test Result: Failure
+actual : #t
+expected : #f
+expression : (check-equal? (behavior-correct? proposed-solution-empty-non-empty (quote ())) #f)
+params : (#t #f)
+
+Test Case: 
+  (test-equal?
+   "TC#9: enrollments-to-rosters is correct"
+   (set=? (rosters-enrls (enrollments-to-rosters CR)) CR)
+   #t)
+Test Result: Success
+
+
+Results for Suite q2-tests:
+  Test Successes: 6
+  Test Failures: 1
+  Test Errors: 0
+
+Raw Score: 6/7
+Normalized Score: 13/15
+
+
+Overall Results:
+  Test Successes: 16
+  Test Failures: 1
+  Test Errors: 0
+
+Raw Score: 16/17
+Normalized Score: 14/15
+

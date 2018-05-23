@@ -1,0 +1,16 @@
+TA Name : Amit Kulkarni (kulkarniamit)
+TA Name : Shailesh Pujari (shail174)
+CCS ID: pdp-shantanu01
+Design:
+- Trailpoints , mx and my is missing in the make-circ [Data definition section]
+- Circle-new-pos has 9 condition checks i.e. could have been simplified by avoiding the checks for corner of the canvas.
+- Suggestion : helper functions in circle-after-key-event could be more descriptive. [No deduction]
+- Contract for handle-empty-list2 is not matching and could have simplified instead of using nested if checks
+
+Presentation: 
+Good, able to defend his design choices. 
+Understood mistake where in use of nested if-checks could have been avoided.
+
+Design Grade:  AB
+Presentation Grade: A
+Score: 15/15 

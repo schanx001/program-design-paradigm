@@ -1,0 +1,32 @@
+TA-1 Name:- kovit
+TA-2 Name:- abhay
+
+Design Grade:- AB
+Correctness Score:- 15/15
+TA Comments on Design:-
+-- interp missing for key event
+-- incorrect contract for place-nodes should be scene
+-- given for place-line shoudl be better, given a child node
+-- place-selected and place-unselected should be generalized
+-- template for world-after-del-key should be divide into cases
+-- generalize lon-after-c-event lon-after-s-event
+-- bad method name lon-after-c-event, better fn name would be lon-after-adding-circle
+
+suggestion :
+  -- draw the call graph on A4 or pdf
+
+Student1 CCIS ID:- shantanu
+Presentation Grade:- A
+TA Comments on Presentation:-
+-- can x and y be nonnegint
+  -- student should have answered it should be int
+  -- shantanu answered it cant be dragged outside
+-- do you require 2 method for place-selected or place-unselected
+  -- couldnt answer initially that could be more generalized.
+  -- he answeered its for readibility
+-- you need to hmm when questions are asked to your patner
+
+Student2 CCIS ID:- tanvi
+Presentation Grade:- A
+TA Comments on Presentation:-
+-- could explain all

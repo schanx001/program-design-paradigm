@@ -1,0 +1,566 @@
+;; The first three lines of this file were inserted by DrRacket. They record metadata
+;; about the language level of this file in a form that our tools can easily process.
+#reader(lib "htdp-intermediate-lambda-reader.ss" "lang")((modname q1) (read-case-sensitive #t) (teachpacks ()) (htdp-settings #(#t constructor repeating-decimal #f #t none #f () #f)))
+;;q1.rkt
+
+(require "extras.rkt")
+(require rackunit)
+(require 2htdp/universe)
+(require 2htdp/image)
+
+;; A Tree is either
+;; -- (make-leaf Number)
+;; -- (make-node Tree Tree)
+
+(define-struct leaf (datum))
+
+(define-struct world (lon mx my mev))
+
+;; A WorldState is a (make-world LON NonNegInt NonNegInt)
+;; INTERPRETATION: 
+;;     lon represents ListOfNodes
+;;     mx and my represent the mouse pointer coordinates
+;;
+;; TEMPLATE:
+;; world-fn : WorldState -> ??
+;; (define (world-fn w)
+;;  (... (world-lon w) (world-mx w) (world-my w)))
+
+
+
+(define-struct node (x y shape selected? lon offset-x offset-y))
+
+;; A Node is a (make-node NonNegInt NonNegInt Shape Node ListofNodes)
+;; x and y are the center of the node
+;; shape is the Shape of the node
+;; parent is the parent of the Node which is also a Node
+;; lon represents the children of the node which is a ListOfNodes
+;;TEMPLATE:
+;; (define node-fn n)
+;; ( ... (node-x n) (node-y n) (node-shape n) (node-selected? n)
+;;   (node-parent n) (node-lon n)
+;;   (lon-fn (node-lon p)))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;; A ListOfNodes is -
+;; -- empty
+;; -- cons Node ListOfNodes
+;; empty                  represents the sequence with no Node
+;; (cons node lon)        represents the sequence whose first element is node
+;;                        and the rest of sequence is represented by lon
+;;
+;; TEMPLATE:
+;; loc-fn : LON-> ??
+;; (define (lon-fn lon
+;;   (cond
+;;     [(empty? lon) ...]
+;;     [else (...
+;;             (node-fn (first lon))
+;;             (lon-fn (rest lon)))]))
+
+;; A Shape can be one of -
+;; -- Circle
+;; -- Square
+
+
+
+(define CANVAS-WIDTH 500)
+(define CANVAS-HEIGHT 400)
+(define EMPTY-CANVAS (empty-scene CANVAS-WIDTH CANVAS-HEIGHT))
+
+
+(define RADIUS 20)
+(define SIDE 40)
+
+(define SHAPE-COLOR "green")
+(define LINE-COLOR "blue")
+
+(define INITIAL-MX 0)
+(define INITIAL-MY 0)
+
+(define DEFAULT-MEV "button-up")
+
+(define SELECTED-CIRCLE (circle RADIUS "solid" SHAPE-COLOR))
+(define UNSELECTED-CIRCLE (circle RADIUS "outline" SHAPE-COLOR))
+
+(define SELECTED-SQUARE (rectangle SIDE SIDE "solid" SHAPE-COLOR))
+(define UNSELECTED-SQUARE (rectangle SIDE SIDE "outline" SHAPE-COLOR))
+
+(define NEW-CIRCLE (make-node 250 20 "circle" false  empty INITIAL-MX INITIAL-MY))
+(define NEW-SQUARE (make-node 250 20 "square" false  empty INITIAL-MX INITIAL-MY))
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(define (initial-world x)
+  (make-world empty DEFAULT-MEV INITIAL-MX INITIAL-MY))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+; MAIN FUNCTION.
+
+;; run : PosReal -> WorldState
+;; GIVEN: the speed of the simulation, in seconds/tick
+;; EFFECT: runs the simulation, starting with the initial state as
+;; specified in the problem set.
+;; RETURNS: the final state of the world
+
+(define (run x)
+  (big-bang (initial-world 0)
+           ; (on-tick world-after-tick 0.5)
+           ; (on-draw world-to-scene)
+            (on-draw world-to-scene)
+            (on-key world-after-key-event)
+            (on-mouse world-after-mouse-event)))
+
+
+(define (world-to-scene w)
+  (cond
+    [(empty? (world-lon w)) EMPTY-CANVAS]
+    [else (place-nodes (world-lon w) EMPTY-CANVAS)]))
+
+
+(define (place-nodes lon s)
+  (cond
+    [(empty? lon) s]
+    [else (place-node (first lon) (place-nodes (rest lon) s))]))
+
+(define (place-node n s)
+  (cond
+    [(node-selected? n) (place-selected-node n s)]
+    [else (place-unselected-node n s)]))
+
+;(define (place-selected-node n s)
+;  (if (equal? (node-shape n) "circle")
+;  (place-image
+;    SELECTED-CIRCLE
+;   (node-x n)
+;   (node-y n) s)
+;  (place-image
+;    SELECTED-SQUARE
+;   (node-x n)
+;   (node-y n) s)))
+  ; (place-dots (circ-dots c) s)))
+;;
+
+(define (place-selected-node n s)
+  (if (equal? (node-shape n) "circle")
+  (place-image
+    SELECTED-CIRCLE
+   (node-x n)
+   (node-y n)
+   (if (empty? (node-lon n)) s
+       (place-line (first (node-lon n)) (node-x n) (node-y n)
+                   (place-nodes (node-lon n) s))))
+  (place-image
+    SELECTED-SQUARE
+   (node-x n)
+   (node-y n)
+
+   (if (empty? (node-lon n)) s
+       (place-line (first (node-lon n)) (node-x n) (node-y n)
+                   (place-nodes (node-lon n) s))))))
+
+
+;(define (place-unselected-node n s)
+;  (if (equal? (node-shape n) "circle")
+;  (place-image
+;    UNSELECTED-CIRCLE
+;   (node-x n)
+;   (node-y n) s)
+;  (place-image
+;    UNSELECTED-SQUARE
+;   (node-x n)
+;   (node-y n) s)))
+
+(define (place-unselected-node n s)
+  (if (equal? (node-shape n) "circle")
+  (place-image
+    UNSELECTED-CIRCLE
+   (node-x n)
+   (node-y n)
+   (if (empty? (node-lon n)) s
+       (place-line (first (node-lon n)) (node-x n) (node-y n)
+                   (place-nodes (node-lon n) s))))
+  (place-image
+    UNSELECTED-SQUARE
+   (node-x n)
+   (node-y n)
+
+   (if (empty? (node-lon n)) s
+       (place-line (first (node-lon n)) (node-x n) (node-y n)
+                   (place-nodes (node-lon n) s))))))
+
+
+(define (place-line n x y s)
+  (scene+line (place-node n s) x y (node-x n) (node-y n) "blue"))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;; world-after-mouse-event : World Integer Integer MouseEvent -> World
+;; GIVEN: a World, a location, and a MouseEvent
+;; RETURNS: the state of the world as it should be following the given mouse 
+;;  event at that location.
+
+(define (world-after-mouse-event  w mx my mev)
+;(make-world (lon-after-mouse-event (world-lon w) mx my mev)
+;            mev
+;            mx
+;            my))
+
+(cond
+    [(mouse=? mev "button-down") (world-after-button-down w mx my mev)]
+    [(mouse=? mev "drag") (world-after-drag w mx my mev)]
+    [(mouse=? mev "button-up") (world-after-button-up w mx my mev)]
+    [else w]))
+
+  (define (world-after-button-down w mx my mev)
+    (make-world (lon-after-button-down (world-lon w) mx my) mx my mev))
+
+(define (world-after-drag w mx1 my1 mev)
+    (make-world (lon-after-drag (world-lon w) mx1 my1) mx1 my1 mev))
+
+(define (world-after-button-up w mx1 my1 mev)
+    (make-world (lon-after-button-up (world-lon w) mx1 my1) mx1 my1 mev))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;; lon-after-mouse-event : World Integer Integer MouseEvent -> World
+;; GIVEN: a World, a location, and a MouseEvent
+;; RETURNS: the state of the world as it should be following the given mouse 
+;;  event at that location.
+
+
+  (define (lon-after-button-down lon mx my)
+    (cond
+      [(empty? lon) empty]
+      [(in-shape? (first lon) mx my)
+       (cons (node-after-button-down (first lon) mx my)
+             (lon-after-button-down (rest lon) mx my))]
+      ;[else (cons (first lon) (lon-after-button-down (rest lon)))]))
+[else (cons (make-node (node-x (first lon))
+                       (node-y (first lon))
+                       (node-shape (first lon))
+                       (node-selected? (first lon))
+                       (lon-after-button-down (node-lon (first lon)) mx my)
+;                       (node-offset-x (first lon))
+;                       (node-offset-y (first lon)))
+                       mx
+                       my)
+                       (lon-after-button-down (rest lon) mx my))]))
+
+ ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+  (define (node-after-button-down n mx1 my1)
+      (make-node (node-x n)
+                 (node-y n)
+                 (node-shape n)
+                 true
+               ;  (node-parent n)
+                ; (node-lon n)
+                 (lon-after-button-down (node-lon n) mx1 my1)
+                 mx1
+                 my1))
+  
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;(define (node-after-mouse-event n mx1 my1 mev)
+; ; (if (empty? (node-lon n))
+;  (cond
+;    [(mouse=? mev "button-down") (node-after-button-down n mx1 my1)]
+;    [(mouse=? mev "drag") (node-after-drag n mx1 my1)]
+;    [(mouse=? mev "button-up") (node-after-button-up n mx1 my1)]
+;    [else n]))
+ ; (lon-after-mouse-event (node-lon n) mx1 my1 mev)))
+
+
+;(define (node-after-mouse-event n mx1 my1 mev)
+;  (cond
+;    [(mouse=? mev "button-down") (subnodes-after-button-down n mx1 my1)]
+;    [(mouse=? mev "drag") (node-after-drag n mx1 my1)]
+;    [(mouse=? mev "button-up") (node-after-button-up n mx1 my1)]
+;    [else n]))
+
+(define (lon-after-drag lon mx my)
+    (cond
+      [(empty? lon) empty]
+      [(node-selected? (first lon))
+       (cons (node-after-drag (first lon) mx my)
+             (lon-after-drag (rest lon) mx my))]
+      [else (cons (make-node (node-x (first lon))
+                       (node-y (first lon))
+                       (node-shape (first lon))
+                       (node-selected? (first lon))
+                       (lon-after-drag (node-lon (first lon)) mx my)
+                       (node-offset-x (first lon))
+                       (node-offset-y (first lon)))
+                       (lon-after-drag (rest lon) mx my))]))
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;  
+
+(define (node-after-drag n mx1 my1)
+ ; (if (node-selected? n)
+      (make-node
+       (- mx1 (- (node-offset-x n) (node-x n)))
+       (- my1 (-  (node-offset-y n) (node-y n)))
+;       (- mx1 (node-offset-x n))
+;                 (- my1 (node-offset-y n))
+                 (node-shape n)
+                 (node-selected? n)
+               ;  (node-parent n)
+                 (lon-after-drag-next (node-lon n) mx1 my1)
+                ; (calculate-x-offset n mx1)
+                ; (calculate-y-offset n my1))
+                
+                
+                 ;(node-offset-x n)
+                 ;(node-offset-y n)
+                 mx1
+                 my1))
+   ;   n))
+
+(define (lon-after-drag-next lon mx1 my1)
+
+        (if (empty? lon) lon
+            (cons (node-after-drag (first lon) mx1 my1)
+                  (lon-after-drag-next (rest lon) mx1 my1))))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(define (lon-after-button-up lon mx1 my1)
+  (cond
+    [(empty? lon) lon]
+    [else (cons (node-after-button-up (first lon) mx1 my1)
+                (lon-after-button-up (rest lon) mx1 my1))]
+    )
+  )
+
+(define (node-after-button-up n mx1 my1)
+  ;(if (node-selected? n)
+      (make-node (node-x n)
+                 (node-y n)
+                 (node-shape n)
+                 false
+                ; (node-parent n)
+                 (lon-after-button-up (node-lon n) mx1 my1)
+                 INITIAL-MX
+                 INITIAL-MY))
+      
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+  (define (in-shape? n mx1 my1)
+    (cond
+    [(string=? (node-shape n) "circle") (in-circle? n mx1 my1)]
+    [(string=? (node-shape n) "square") (in-square? n mx1 my1)]))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(define (in-circle? c mx1 my1)
+  (<= (sqrt (+ (sqr (- mx1 (node-x c)))
+               (sqr (- my1 (node-y c)))))
+      RADIUS))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(define (in-square? n mx1 my1)
+(and
+   (<= 
+    (- (node-x n) SIDE)
+    mx1
+    (+ (node-x n) SIDE))
+   (<= 
+    (- (node-y n) SIDE)
+    my1
+    (+ (node-y n) SIDE))))
+
+
+(define (calculate-x-offset n mx1)
+  (- mx1 (node-x n)))
+
+(define (calculate-y-offset n my1)
+  (- my1 (node-y n)))
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;; world-after-key-event : WorldState KeyEvent -> WorldState
+;; GIVEN: a world w and a key event
+;; RETURNS: the world that should follow the given world
+;;          after the given key event.
+;;          on space, toggle paused?-- ignore all others
+;; EXAMPLES: (world-after-key-event upaused-world-at-200-200-200-100 " ") ->
+;;               (paused-world-at-200-200-200-100)
+;; STRATEGY: Cases on KeyEvent kev
+
+;(define (world-after-key-event w kev)
+;  (cond
+;    [(empty? (world-lon w)) (make-world (create-node-no-node-selected w kev)
+;                                        INITIAL-MX INITIAL-MY DEFAULT-MEV)]
+;    [(any-node-selected? (world-lon w))
+;         (make-world (create-node-no-node-selected w kev)
+;                     INITIAL-MX INITIAL-MY DEFAULT-MEV)]
+;    [else (make-world (lon-after-key-event (world-lon w) kev)
+;              (world-mx w)
+;              (world-my w)
+;              (world-mev w))]))
+
+
+(define (world-after-key-event w kev)
+  (cond
+     [(key=? "c" kev)
+      
+    (if (empty? (world-lon w)) (make-world (create-node-no-node-selected w kev)
+                                        INITIAL-MX INITIAL-MY DEFAULT-MEV)
+    
+    (if (no-node-selected? (world-lon w))
+   
+         (make-world (lon-after-c-event (world-lon w)) (world-mx w) (world-my w) (world-mev w))
+               (make-world (create-node-no-node-selected w kev)
+                   (world-mx w) (world-my w) (world-mev w))))]
+
+     [(key=? "s" kev)
+      
+    (if (empty? (world-lon w)) (make-world (create-node-no-node-selected w kev)
+                                        INITIAL-MX INITIAL-MY DEFAULT-MEV)
+    
+    (if (no-node-selected? (world-lon w))
+
+         (make-world (lon-after-s-event (world-lon w)) (world-mx w) (world-my w) (world-mev w))
+                  (make-world (create-node-no-node-selected w kev)
+                   (world-mx w) (world-my w) (world-mev w))))]
+     [else w]
+     ))
+
+
+
+
+         
+;         (make-world (lon-after-circle-event (world-lon w) kev)
+;              (world-mx w)
+;              (world-my w)
+;              (world-mev w)))]
+
+(define (create-node-no-node-selected w kev)
+  (cond
+        [(key=? "c" kev) (cons NEW-CIRCLE (world-lon w))]
+        [(key=? "s" kev) (cons NEW-SQUARE (world-lon w))]
+        [else (world-lon w)]))
+
+(define (no-node-selected? lon)
+ (ormap
+   (lambda (elt)
+     (or
+      (node-selected? elt)
+      (no-node-selected? (node-lon elt))))
+   lon))
+
+(define (lon-after-c-event lon)
+  (cond
+    [(empty? lon) empty]
+    [(node-selected? (first lon)) (cons (node-after-circle-event (first lon))
+                (lon-after-c-event (rest lon)))]
+    [else (cons (make-node (node-x (first lon))
+                       (node-y (first lon))
+                       (node-shape (first lon))
+                       (node-selected? (first lon))
+                       (lon-after-c-event (node-lon (first lon)))
+                       (node-offset-x (first lon))
+                       (node-offset-y (first lon)))
+                       (lon-after-c-event (rest lon)))]))
+
+(define (lon-after-s-event lon)
+  (cond
+    [(empty? lon) empty]
+    [(node-selected? (first lon)) (cons (node-after-square-event (first lon))
+                (lon-after-s-event (rest lon)))]
+    [else (cons (make-node (node-x (first lon))
+                       (node-y (first lon))
+                       (node-shape (first lon))
+                       (node-selected? (first lon))
+                       (lon-after-s-event (node-lon (first lon)))
+                       (node-offset-x (first lon))
+                       (node-offset-y (first lon)))
+                       (lon-after-s-event (rest lon)))]))
+
+;(define (node-after-key-event n kev)
+;
+;      (cond
+;        [(key=? "c" kev) (node-after-circle-key n kev)]
+;        [(key=? "s" kev) (node-after-square-key n kev)]
+;        [else n]))
+
+(define (node-after-circle-event n)
+ ; (if (node-selected? n)
+   (make-node (node-x n)
+             (node-y n)
+             (node-shape n)
+             (node-selected? n)
+           ;  (node-parent n)
+             (create-child-node n "circle")
+             (node-offset-x n)
+             (node-offset-y n)))
+  ; n))
+    ;  (create-child-node n kev "circle"))
+     ; (make-node 150 0 "circle" false n empty INITIAL-MX INITIAL-MY)))
+
+
+(define (node-after-square-event n)
+ ;(if (node-selected? n)
+  (make-node (node-x n)
+             (node-y n)
+             
+             (node-shape n)
+             (node-selected? n)
+          ;   (node-parent n)
+             (create-child-node n "square")
+             (node-offset-x n)
+             (node-offset-y n)))
+ ; n))
+  
+   ;   (create-child-node n kev "square"))
+   ;   (make-node 150 0 "square" false n empty INITIAL-MX INITIAL-MY)))
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(define (create-child-node n s)
+  (if (equal? (node-lon n) empty)
+      (cons (make-node (node-x n)
+                 (+ (node-y n) 60)
+                   s
+                   false
+                   empty
+                   INITIAL-MX
+                   INITIAL-MY) (node-lon n))
+  (cons (make-node (- (node-x (first (node-lon n))) 60)
+                   (+ (node-y n) 60)
+                   s
+                   false
+                   empty
+                   INITIAL-MX
+                   INITIAL-MY)
+        (node-lon n))))
+      
+     
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(define (subtree n)
+  (append
+   (node-lon n)
+   (full-subtree (node-lon n))))
+
+(define (full-subtree lon)
+  (cond
+    [(empty? lon) empty]
+    [else (append
+           (subtree (first lon))
+           (full-subtree (rest lon)))]))
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(define (world-to-trees w)
+  (full-subtree (world-lon w)))
+

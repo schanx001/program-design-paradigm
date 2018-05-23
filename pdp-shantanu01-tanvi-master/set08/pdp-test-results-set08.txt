@@ -1,0 +1,361 @@
+PDP Test Report for set08
+
+
+Test Name: q1-tests
+Definitions:
+	(define (create-program-with-loops-sentinel len loop-back-steps lod-so-far)
+	  (if (= len 0)
+	    (cons
+	     (make-def
+	      (number->symbol (length lod-so-far))
+	      empty
+	      (make-appexp
+	       (number->symbol (- (length lod-so-far) loop-back-steps))
+	       empty))
+	     lod-so-far)
+	    (create-program-with-loops-sentinel
+	     (- len 1)
+	     loop-back-steps
+	     (cons
+	      (make-def
+	       (number->symbol (length lod-so-far))
+	       empty
+	       (make-appexp (number->symbol (+ (length lod-so-far) 1)) empty))
+	      lod-so-far))))
+	(define 51-FUNCTIONS-WITH-LOOP-AT-47
+	  (reverse (create-program-with-loops-sentinel 50 4 empty)))
+	(define 101-FUNCTIONS-WITH-LOOP-AT-100
+	  (reverse (create-program-with-loops-sentinel 100 51 empty)))
+	(define 151-FUNCTIONS-WITH-LOOP-AT-47
+	  (reverse (create-program-with-loops-sentinel 150 104 empty)))
+	(define FUNC-WITH-NO-ARGS0 (make-def 'f1 '() (make-varexp 'x)))
+	(define PROGRAM-WITH-NO-ARGS-FUNC0 (list FUNC-WITH-NO-ARGS0))
+	(define FUNC-F0-WITH-ARGS-BUT-NO-LOOP0
+	  (make-def
+	   'f0
+	   (list 'x 'y)
+	   (make-appexp
+	    'f1
+	    (list
+	     (make-appexp 'f2 (list (make-varexp 'x) (make-varexp 'y)))
+	     (make-varexp 'y)))))
+	(define FUNC-F1-WITH-ARGS-BUT-NO-LOOP1
+	  (make-def 'f1 (list 'x 'y) (make-varexp 'a)))
+	(define FUNC-F2-WITH-ARGS-BUT-NO-LOOP2
+	  (make-def 'f2 (list 'x 'y) (make-varexp 'a)))
+	(define PROGRAM-WITH-ARGS-FUNCS-BUT-NO-LOOPS0
+	  (list
+	   FUNC-F0-WITH-ARGS-BUT-NO-LOOP0
+	   FUNC-F1-WITH-ARGS-BUT-NO-LOOP1
+	   FUNC-F2-WITH-ARGS-BUT-NO-LOOP2))
+	(define FUNC-F1-WITH-ARGS-BUT-NO-LOOP3
+	  (make-def
+	   'f1
+	   (list 'x 'y)
+	   (make-appexp 'f2 (list (make-varexp 'x) (make-varexp 'y)))))
+	(define PROGRAM-WITH-ARGS-FUNCS-BUT-NO-LOOPS1
+	  (list
+	   FUNC-F0-WITH-ARGS-BUT-NO-LOOP0
+	   FUNC-F1-WITH-ARGS-BUT-NO-LOOP3
+	   FUNC-F2-WITH-ARGS-BUT-NO-LOOP2))
+	(define FUNC-F0-WITH-NO-ARGS-AND-LOOP0
+	  (make-def 'f0 '() (make-appexp 'f0 '())))
+	(define FUNC-F0-WITH-ARGS-AND-LOOP0
+	  (make-def
+	   'f0
+	   (list 'x 'y)
+	   (make-appexp 'f0 (list (make-varexp 'x) (make-varexp 'y)))))
+	(define PROGRAM-WITH-NO-ARGS-FUNC-AND-LOOP0
+	  (list FUNC-F0-WITH-NO-ARGS-AND-LOOP0))
+	(define PROGRAM-WITH-ARGS-FUNC-AND-LOOP0 (list FUNC-F0-WITH-ARGS-AND-LOOP0))
+	(define FUNC-F1-WITH-ARGS-AND-LOOP0
+	  (make-def
+	   'f1
+	   (list 'x 'y)
+	   (make-appexp 'f2 (list (make-varexp 'x) (make-varexp 'y)))))
+	(define FUNC-F2-WITH-ARGS-AND-LOOP0
+	  (make-def
+	   'f2
+	   (list 'x 'y)
+	   (make-appexp 'f0 (list (make-varexp 'x) (make-varexp 'y)))))
+	(define PROGRAM-WITH-ARGS-FUNC-AND-LOOP1
+	  (list
+	   FUNC-F0-WITH-ARGS-BUT-NO-LOOP0
+	   FUNC-F1-WITH-ARGS-AND-LOOP0
+	   FUNC-F2-WITH-ARGS-AND-LOOP0))
+	(define FUNC-F2-WITH-ARGS-AND-LOOP1
+	  (make-def
+	   'f2
+	   (list 'x 'y)
+	   (make-appexp 'f3 (list (make-varexp 'x) (make-varexp 'y)))))
+	(define FUNC-F3-WITH-ARGS-AND-LOOP0
+	  (make-def
+	   'f3
+	   (list 'x 'y)
+	   (make-appexp
+	    'f4
+	    (list (make-appexp 'f5 (list (make-varexp 'x))) (make-varexp 'y)))))
+	(define FUNC-F4-WITH-ARGS-AND-LOOP0
+	  (make-def 'f4 (list 'x 'y) (make-varexp 'x)))
+	(define FUNC-F5-WITH-ARGS-AND-LOOP0
+	  (make-def 'f5 (list 'x 'y) (make-appexp 'f2 (list (make-varexp 'a)))))
+	(define PROGRAM-WITH-ARGS-FUNC-AND-LOOP2
+	  (list
+	   FUNC-F0-WITH-ARGS-BUT-NO-LOOP0
+	   FUNC-F1-WITH-ARGS-AND-LOOP0
+	   FUNC-F2-WITH-ARGS-AND-LOOP1
+	   FUNC-F3-WITH-ARGS-AND-LOOP0
+	   FUNC-F4-WITH-ARGS-AND-LOOP0
+	   FUNC-F5-WITH-ARGS-AND-LOOP0))
+
+Test Case: 
+  (test-equal?
+   "TC#1: Program with no args to function definition."
+   (any-loops? PROGRAM-WITH-NO-ARGS-FUNC0)
+   false)
+Test Result: Success
+
+Test Case: 
+  (test-equal?
+   "TC#2: Program with args to function definitions but no loops."
+   (any-loops? PROGRAM-WITH-ARGS-FUNCS-BUT-NO-LOOPS0)
+   false)
+Test Result: Success
+
+Test Case: 
+  (test-equal?
+   "TC#3: Program with args to function definitions but no loops."
+   (any-loops? PROGRAM-WITH-ARGS-FUNCS-BUT-NO-LOOPS1)
+   false)
+Test Result: Success
+
+Test Case: 
+  (test-equal?
+   "TC#4: Program with no args to function definitions and loops."
+   (any-loops? PROGRAM-WITH-NO-ARGS-FUNC-AND-LOOP0)
+   true)
+Test Result: Success
+
+Test Case: 
+  (test-equal?
+   "TC#5: Program with args to function definitions and loops."
+   (any-loops? PROGRAM-WITH-ARGS-FUNC-AND-LOOP0)
+   true)
+Test Result: Success
+
+Test Case: 
+  (test-equal?
+   "TC#6: Program with args to function definitions and loops."
+   (any-loops? PROGRAM-WITH-ARGS-FUNC-AND-LOOP1)
+   true)
+Test Result: Success
+
+Test Case: 
+  (test-equal?
+   "TC#7: Program with args to function definitions and loops."
+   (any-loops? PROGRAM-WITH-ARGS-FUNC-AND-LOOP2)
+   true)
+Test Result: Success
+
+Test Case: 
+  (test-equal?
+   "TC#8 - Small stress test for function with loops"
+   (any-loops? 51-FUNCTIONS-WITH-LOOP-AT-47)
+   true)
+Test Result: Success
+
+Test Case: 
+  (test-equal?
+   "TC#9 - Medium stress test for function with loops"
+   (any-loops? 101-FUNCTIONS-WITH-LOOP-AT-100)
+   true)
+Test Result: Success
+
+Test Case: 
+  (test-equal?
+   "TC#10 - Large stress test for function with loops"
+   (any-loops? 151-FUNCTIONS-WITH-LOOP-AT-47)
+   true)
+Test Result: Success
+
+
+Results for Suite q1-tests:
+  Test Successes: 10
+  Test Failures: 0
+  Test Errors: 0
+
+Raw Score: 10/10
+Normalized Score: 15/15
+
+
+Test Name: q2-tests
+Definitions:
+	(define a (make-pos 'a))
+	(define not-a (make-neg 'a))
+	(define b (make-pos 'b))
+	(define not-b (make-neg 'b))
+	(define c (make-pos 'c))
+	(define not-c (make-neg 'c))
+	(define d (make-pos 'd))
+	(define CLAUSE-1-WITH-AB (make-clause (list a b)))
+	(define CLAUSE-2-WITH-CD (make-clause (list c d)))
+	(define LIST-OF-CLAUSES-1-WITH-AB-WITH-CD
+	  (list CLAUSE-1-WITH-AB CLAUSE-2-WITH-CD))
+	(define CLAUSE-3-WITH-NOTB (make-clause (list not-b)))
+	(define LIST-OF-CLAUSES-2-WITH-AB-WITH-NOTB
+	  (list CLAUSE-1-WITH-AB CLAUSE-3-WITH-NOTB))
+	(define EMPTY-CLAUSE (make-clause '()))
+	(define CLAUSE-4-WITH-B (make-clause (list b)))
+	(define LIST-OF-CLAUSES-3-WITH-EMPTY-WITH-B
+	  (list EMPTY-CLAUSE CLAUSE-4-WITH-B))
+	(define CLAUSE-5-WITH-ABC (make-clause (list a b c)))
+	(define LIST-OF-CLAUSES-4-WITH-ABC-EMPTY-CLAUSE
+	  (list CLAUSE-5-WITH-ABC EMPTY-CLAUSE))
+	(define CLAUSE-6-WITH-NOTBNOTC (make-clause (list not-b not-c)))
+	(define LIST-OF-CLAUSES-5-WITH-AB-WITH-NOTBNOTC
+	  (list CLAUSE-1-WITH-AB CLAUSE-6-WITH-NOTBNOTC))
+	(define CLAUSE-7-WITH-C (make-clause (list c)))
+	(define LIST-OF-CLAUSES-6-WITH-AB-WITH-NOTBNOTC-WITH-C
+	  (list CLAUSE-1-WITH-AB CLAUSE-6-WITH-NOTBNOTC CLAUSE-7-WITH-C))
+	(define LIST-OF-CLAUSES-7-WITH-AB-WITH-NOTBNOTC-WITH-C-WITH-B
+	  (list
+	   CLAUSE-1-WITH-AB
+	   CLAUSE-6-WITH-NOTBNOTC
+	   CLAUSE-7-WITH-C
+	   CLAUSE-4-WITH-B))
+	(define CLAUSE-8-WITH-NOTANOTB (make-clause (list not-a not-b)))
+	(define LIST-OF-CLAUSES-8-WITH-AB-WITH-NOTANOTB
+	  (list CLAUSE-1-WITH-AB CLAUSE-8-WITH-NOTANOTB))
+	(define CLAUSE-9-WITH-A-NOTB-C (make-clause (list a not-b c)))
+	(define CLAUSE-10-WITH-DB (make-clause (list d b)))
+	(define CLAUSE-11-WITH-NOTAC (make-clause (list not-a c)))
+	(define CLAUSE-12-WITH-NOTC (make-clause (list not-c)))
+	(define LIST-OF-CLAUSES-9-FIVE-CLAUSES
+	  (list
+	   CLAUSE-9-WITH-A-NOTB-C
+	   CLAUSE-10-WITH-DB
+	   CLAUSE-11-WITH-NOTAC
+	   CLAUSE-4-WITH-B
+	   CLAUSE-12-WITH-NOTC))
+	(define (create-loc-sentinel len loc-so-far)
+	  (if (<= len 0)
+	    loc-so-far
+	    (create-loc-sentinel
+	     (- len 1)
+	     (append
+	      (cons (make-clause (list (make-pos (number->symbol len)))) loc-so-far)
+	      (list (make-clause (list (make-neg (number->symbol len)))))))))
+
+Test Case: 
+  (test-equal?
+   "TC#1 - Two clauses: first clause with a,b and second clause with c,d"
+   (is-null-derivable? LIST-OF-CLAUSES-1-WITH-AB-WITH-CD)
+   false)
+Test Result: Success
+
+Test Case: 
+  (test-equal?
+   "TC#2 - Two clauses: first clause with a,b and second with not b"
+   (is-null-derivable? LIST-OF-CLAUSES-2-WITH-AB-WITH-NOTB)
+   false)
+Test Result: Success
+
+Test Case: 
+  (test-equal?
+   "TC#3 - Two clauses: first clause as an empty list and second non-empty with b"
+   (is-null-derivable? LIST-OF-CLAUSES-3-WITH-EMPTY-WITH-B)
+   true)
+Test Result: Success
+
+Test Case: 
+  (test-equal?
+   "TC#4 - Two clauses: first clause with a,b,c and second clause as empty list"
+   (is-null-derivable? LIST-OF-CLAUSES-4-WITH-ABC-EMPTY-CLAUSE)
+   true)
+Test Result: Success
+
+Test Case: 
+  (test-equal?
+   "TC#5 - Two clauses: first clause with a,b and second clause with not b, not c"
+   (is-null-derivable? LIST-OF-CLAUSES-5-WITH-AB-WITH-NOTBNOTC)
+   false)
+Test Result: Success
+
+Test Case: 
+  (test-equal?
+   "TC#6 - Small stress test for large number of clauses"
+   (is-null-derivable? (create-loc-sentinel 50 empty))
+   true)
+Test Result: Success
+
+Test Case: 
+  (test-equal?
+   "TC#7 - Medium stress test for large number of clauses"
+   (is-null-derivable? (create-loc-sentinel 100 empty))
+   true)
+Test Result: Success
+
+Test Case: 
+  (test-equal?
+   "TC#8 - Large stress test for large number of clauses"
+   (is-null-derivable? (create-loc-sentinel 150 empty))
+   true)
+Test Result: Success
+
+Test Case: 
+  (test-equal?
+   "TC#9 - Three clauses: first clause with a,b second clause with not b and not c and third clause with c"
+   (is-null-derivable? LIST-OF-CLAUSES-6-WITH-AB-WITH-NOTBNOTC-WITH-C)
+   false)
+Test Result: Success
+
+Test Case: 
+  (test-equal?
+   "TC#10 - Four clauses: first clause with a,b second clause with not b and not c, third clause with c and last with b"
+   (is-null-derivable? LIST-OF-CLAUSES-7-WITH-AB-WITH-NOTBNOTC-WITH-C-WITH-B)
+   true)
+Test Result: Success
+
+Test Case: 
+  (test-equal?
+   "TC#11 - Two clauses: first clause with a,b and second clause with not a, not b"
+   (is-null-derivable? LIST-OF-CLAUSES-8-WITH-AB-WITH-NOTANOTB)
+   false)
+Test Result: Success
+
+Test Case: 
+  (test-equal?
+   "TC#12 - Five clauses: One defined in the problem statement"
+   (is-null-derivable? LIST-OF-CLAUSES-9-FIVE-CLAUSES)
+   true)
+Test Result: Success
+
+Test Case: 
+  (test-equal? "TC#13 - Empty formula" (is-null-derivable? empty) false)
+Test Result: Success
+
+Test Case: 
+  (test-equal?
+   "TC#14 - Empty clause"
+   (is-null-derivable? (list (make-clause '())))
+   true)
+Test Result: Success
+
+
+Results for Suite q2-tests:
+  Test Successes: 14
+  Test Failures: 0
+  Test Errors: 0
+
+Raw Score: 14/14
+Normalized Score: 15/15
+
+
+Overall Results:
+  Test Successes: 24
+  Test Failures: 0
+  Test Errors: 0
+
+Raw Score: 24/24
+Normalized Score: 15/15
+

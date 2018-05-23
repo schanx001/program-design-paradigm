@@ -1,0 +1,680 @@
+PDP Test Report for set04
+
+
+Test Name: screensaver-3-tests
+Definitions:
+	(define N-KEY "n")
+	(define D-KEY "d")
+	(define U-KEY "u")
+	(define E-KEY "e")
+	(define UP-ARROW "up")
+	(define DOWN-ARROW "down")
+	(define LEFT-ARROW "left")
+	(define RIGHT-ARROW "right")
+	(define INITIAL-WORLD (world-after-key-event (initial-world 0.5) " "))
+
+Test Case: 
+  (test-equal?
+   "Initial world should have no circles"
+   (empty? (world-circles INITIAL-WORLD))
+   #t)
+Test Result: Success
+
+Test Case: 
+  (test-equal?
+   "x velocity of newly added circle is zero"
+   (circ-vx (first (world-circles (world-after-key-event INITIAL-WORLD N-KEY))))
+   0)
+Test Result: Success
+
+Test Case: 
+  (test-equal?
+   "y velocity of newly added circle is zero"
+   (circ-vy (first (world-circles (world-after-key-event INITIAL-WORLD N-KEY))))
+   0)
+Test Result: Success
+
+Test Case: 
+  (test-equal?
+   "Selecting the circle on its circumference"
+   (circ-selected?
+    (first
+     (world-circles
+      (world-after-mouse-event
+       (world-after-key-event INITIAL-WORLD N-KEY)
+       239
+       150
+       "button-down"))))
+   #t)
+Test Result: Success
+
+Test Case: 
+  (test-equal?
+   "Clicking outside the circle does not select the circle"
+   (circ-selected?
+    (first
+     (world-circles
+      (world-after-mouse-event
+       (world-after-key-event INITIAL-WORLD N-KEY)
+       239
+       130
+       "button-down"))))
+   #f)
+Test Result: Success
+
+Test Case: 
+  (test-equal?
+   "x-coordinate of newly added circle"
+   (circ-x (first (world-circles (world-after-key-event INITIAL-WORLD N-KEY))))
+   200)
+Test Result: Success
+
+Test Case: 
+  (test-equal?
+   "y-coordinate of newly added circle"
+   (circ-y (first (world-circles (world-after-key-event INITIAL-WORLD N-KEY))))
+   150)
+Test Result: Success
+
+Test Case: 
+  (test-equal?
+   "right key increases the horizontal velocity by 2"
+   (circ-vx
+    (first
+     (world-circles
+      (world-after-key-event
+       (world-after-mouse-event
+        (world-after-key-event INITIAL-WORLD "n")
+        200
+        150
+        "button-down")
+       RIGHT-ARROW))))
+   2)
+Test Result: Success
+
+Test Case: 
+  (test-equal?
+   "up key decreases the vertical velocity by 2"
+   (circ-vy
+    (first
+     (world-circles
+      (world-after-key-event
+       (world-after-key-event
+        (world-after-key-event
+         (world-after-mouse-event
+          (world-after-key-event INITIAL-WORLD "n")
+          200
+          150
+          "button-down")
+         "right")
+        "left")
+       "up"))))
+   -2)
+Test Result: Success
+
+Test Case: 
+  (test-equal?
+   "down key decreases the vertical velocity by 2"
+   (circ-vy
+    (first
+     (world-circles
+      (world-after-key-event
+       (world-after-key-event
+        (world-after-key-event
+         (world-after-mouse-event
+          (world-after-key-event INITIAL-WORLD "n")
+          200
+          150
+          "button-down")
+         "right")
+        "left")
+       "down"))))
+   2)
+Test Result: Success
+
+Test Case: 
+  (test-equal?
+   "down key decreases the vertical velocity by 2"
+   (circ-vy
+    (first
+     (world-circles
+      (world-after-key-event
+       (world-after-key-event
+        (world-after-key-event
+         (world-after-mouse-event
+          (world-after-key-event INITIAL-WORLD "n")
+          200
+          150
+          "button-down")
+         "right")
+        "left")
+       "down"))))
+   2)
+Test Result: Success
+
+Test Case: 
+  (test-equal?
+   "selected circle does not move on ticks"
+   (circ-y
+    (first
+     (world-circles
+      (world-after-tick
+       (world-after-tick
+        (world-after-key-event
+         (world-after-key-event
+          (world-after-key-event
+           (world-after-key-event
+            (world-after-mouse-event
+             (world-after-key-event INITIAL-WORLD "n")
+             200
+             150
+             "button-down")
+            "right")
+           "right")
+          "up")
+         "up"))))))
+   150)
+Test Result: Success
+
+Test Case: 
+  (test-equal?
+   "circle's y position after 2 ticks with non zero velocity"
+   (circ-y
+    (first
+     (world-circles
+      (world-after-tick
+       (world-after-tick
+        (world-after-mouse-event
+         (world-after-key-event
+          (world-after-key-event
+           (world-after-key-event
+            (world-after-key-event
+             (world-after-mouse-event
+              (world-after-key-event INITIAL-WORLD "n")
+              200
+              150
+              "button-down")
+             "right")
+            "right")
+           "up")
+          "up")
+         200
+         150
+         "button-up"))))))
+   (+ 150 -8))
+Test Result: Success
+
+Test Case: 
+  (test-equal?
+   "circle's x position after 2 ticks with non zero velocity"
+   (circ-x
+    (first
+     (world-circles
+      (world-after-tick
+       (world-after-tick
+        (world-after-mouse-event
+         (world-after-key-event
+          (world-after-key-event
+           (world-after-key-event
+            (world-after-key-event
+             (world-after-mouse-event
+              (world-after-key-event INITIAL-WORLD "n")
+              200
+              150
+              "button-down")
+             "right")
+            "right")
+           "up")
+          "up")
+         200
+         150
+         "button-up"))))))
+   (+ 200 8))
+Test Result: Success
+
+Test Case: 
+  (test-equal?
+   "left key decreases the horizontal velocity by 2"
+   (circ-vx
+    (first
+     (world-circles
+      (world-after-key-event
+       (world-after-key-event
+        (world-after-mouse-event
+         (world-after-key-event INITIAL-WORLD "n")
+         200
+         150
+         "button-down")
+        RIGHT-ARROW)
+       LEFT-ARROW))))
+   0)
+Test Result: Success
+
+Test Case: 
+  (test-equal?
+   "should not pen down if circle is unselected"
+   (circle-pen-down?
+    (first
+     (world-circles
+      (world-after-key-event
+       (world-after-tick
+        (world-after-mouse-event
+         (world-after-key-event
+          (world-after-key-event
+           (world-after-key-event
+            (world-after-key-event
+             (world-after-mouse-event
+              (world-after-key-event INITIAL-WORLD "n")
+              200
+              150
+              "button-down")
+             "right")
+            "right")
+           "up")
+          "up")
+         200
+         150
+         "button-up"))
+       "d"))))
+   #f)
+Test Result: Success
+
+Test Case: 
+  (test-equal?
+   "should pen down as circle is selected"
+   (circle-pen-down?
+    (first
+     (world-circles
+      (world-after-key-event
+       (world-after-mouse-event
+        (world-after-tick
+         (world-after-mouse-event
+          (world-after-key-event
+           (world-after-key-event
+            (world-after-key-event
+             (world-after-key-event
+              (world-after-mouse-event
+               (world-after-key-event INITIAL-WORLD "n")
+               200
+               150
+               "button-down")
+              "right")
+             "right")
+            "up")
+           "up")
+          200
+          150
+          "button-up"))
+        243
+        146
+        "button-down")
+       "d"))))
+   #t)
+Test Result: Success
+
+Test Case: 
+  (test-equal?
+   "test to check 'u' key leads to pen up"
+   (circle-pen-down?
+    (first
+     (world-circles
+      (world-after-key-event
+       (world-after-mouse-event
+        (world-after-tick
+         (world-after-tick
+          (world-after-mouse-event
+           (world-after-key-event
+            (world-after-mouse-event
+             (world-after-tick
+              (world-after-mouse-event
+               (world-after-key-event
+                (world-after-key-event
+                 (world-after-key-event
+                  (world-after-key-event
+                   (world-after-mouse-event
+                    (world-after-key-event
+                     (world-after-key-event (initial-world 0.5) " ")
+                     "n")
+                    200
+                    150
+                    "button-down")
+                   "right")
+                  "right")
+                 "up")
+                "up")
+               200
+               150
+               "button-up"))
+             243
+             146
+             "button-down")
+            "d")
+           243
+           146
+           "button-up")))
+        212
+        138
+        "button-down")
+       "u"))))
+   #f)
+Test Result: Success
+
+Test Case: 
+  (test-equal?
+   "two circles at rest on different locations on the canvas"
+   (length
+    (world-circles
+     (world-after-key-event
+      (world-after-mouse-event
+       (world-after-mouse-event
+        (world-after-key-event INITIAL-WORLD "n")
+        200
+        150
+        "button-down")
+       50
+       50
+       "drag")
+      "n")))
+   2)
+Test Result: Success
+
+Test Case: 
+  (test-equal?
+   "selected first circle,increased its velocity, unselected the circle, moved\n   one tick, returning the x coordinate of that circle"
+   (circ-x
+    (second
+     (world-circles
+      (world-after-tick
+       (world-after-mouse-event
+        (world-after-key-event
+         (world-after-mouse-event
+          (world-after-key-event
+           (world-after-mouse-event
+            (world-after-mouse-event
+             (world-after-key-event INITIAL-WORLD "n")
+             200
+             150
+             "button-down")
+            50
+            50
+            "drag")
+           "n")
+          60
+          40
+          "button-down")
+         "left")
+        60
+        40
+        "button-up")))))
+   (+ 50 -2))
+Test Result: Success
+
+Test Case: 
+  (test-equal?
+   "test for pause "
+   (circ-x
+    (second
+     (world-circles
+      (world-after-tick
+       (world-after-key-event
+        (world-after-tick
+         (world-after-mouse-event
+          (world-after-key-event
+           (world-after-mouse-event
+            (world-after-key-event
+             (world-after-mouse-event
+              (world-after-mouse-event
+               (world-after-key-event
+                (world-after-key-event (initial-world 0.5) " ")
+                "n")
+               200
+               150
+               "button-down")
+              50
+              50
+              "drag")
+             "n")
+            60
+            40
+            "button-down")
+           "left")
+          60
+          40
+          "button-up"))
+        " ")))))
+   (+ 50 -2))
+Test Result: Success
+
+Test Case: 
+  (test-equal?
+   "selected first circle,increased its velocity, unselected the circle, moved\n   one tick, returning the x coordinate of the second circle"
+   (circ-x
+    (first
+     (world-circles
+      (world-after-tick
+       (world-after-mouse-event
+        (world-after-key-event
+         (world-after-mouse-event
+          (world-after-key-event
+           (world-after-mouse-event
+            (world-after-mouse-event
+             (world-after-key-event INITIAL-WORLD "n")
+             200
+             150
+             "button-down")
+            50
+            50
+            "drag")
+           "n")
+          60
+          40
+          "button-down")
+         "left")
+        60
+        40
+        "button-up")))))
+   200)
+Test Result: Success
+
+Test Case: 
+  (test-equal?
+   "perfect bounce"
+   (circ-x
+    (second
+     (world-circles
+      (world-after-tick
+       (world-after-mouse-event
+        (world-after-tick
+         (world-after-mouse-event
+          (world-after-key-event
+           (world-after-mouse-event
+            (world-after-key-event
+             (world-after-mouse-event
+              (world-after-mouse-event
+               (world-after-key-event INITIAL-WORLD "n")
+               200
+               150
+               "button-down")
+              50
+              50
+              "drag")
+             "n")
+            50
+            50
+            "button-down")
+           "left")
+          41
+          100
+          "drag"))
+        41
+        100
+        "button-up")))))
+   40)
+Test Result: Success
+
+Test Case: 
+  (test-equal?
+   "reverse velocity for bounce"
+   (circ-vx
+    (second
+     (world-circles
+      (world-after-tick
+       (world-after-mouse-event
+        (world-after-tick
+         (world-after-mouse-event
+          (world-after-key-event
+           (world-after-mouse-event
+            (world-after-key-event
+             (world-after-mouse-event
+              (world-after-mouse-event
+               (world-after-key-event INITIAL-WORLD "n")
+               200
+               150
+               "button-down")
+              50
+              50
+              "drag")
+             "n")
+            50
+            50
+            "button-down")
+           "left")
+          41
+          100
+          "drag"))
+        41
+        100
+        "button-up")))))
+   2)
+Test Result: Success
+
+
+Results for Suite screensaver-3-tests:
+  Test Successes: 24
+  Test Failures: 0
+  Test Errors: 0
+
+Raw Score: 24/24
+Normalized Score: 15/15
+
+
+Test Name: class-lists-tests
+Definitions:
+	(define YELLOW-SLIP1 (make-slip "yellow" "John" "Snow"))
+	(define YELLOW-SLIP2 (make-slip "yellow" "Snow" "John"))
+	(define BLUE-SLIP1 (make-slip "blue" "Eddard" "Stark"))
+	(define BLUE-SLIP2 (make-slip "blue" "Stark" "Eddard"))
+	(define BLUE-SLIP3 (make-slip "blue" "Arya" "Stark"))
+	(define BLUE-SLIP4 (make-slip "blue" "Stark" "Sansa"))
+	(define YELLOW-SLIP3 (make-slip "yellow" "Arya" "Stark"))
+	(define YELLOW-SLIP4 (make-slip "yellow" "Stark" "Sansa"))
+	(define DUPLI-LIST-YELLOW (list YELLOW-SLIP1 YELLOW-SLIP2))
+	(define DUPLI-LIST-BLUE (list BLUE-SLIP1 BLUE-SLIP2))
+	(define NON-DUPLI-LIST-BLUE (list BLUE-SLIP3 BLUE-SLIP4))
+	(define NON-DUPLI-LIST-YELLOW (list YELLOW-SLIP3 YELLOW-SLIP4))
+	(define MIX-LIST-BLUE (append DUPLI-LIST-BLUE NON-DUPLI-LIST-BLUE))
+	(define MIX-LIST-YELLOW (append DUPLI-LIST-YELLOW NON-DUPLI-LIST-YELLOW))
+	(define MIX-LIST-BLUE-YELLOW-DUPLI (append DUPLI-LIST-YELLOW DUPLI-LIST-BLUE))
+	(define MIX-LIST-BLUE-YELLOW-NON-DUPLI
+	  (append NON-DUPLI-LIST-YELLOW NON-DUPLI-LIST-BLUE))
+	(define MIX-LIST
+	  (append
+	   NON-DUPLI-LIST-YELLOW
+	   NON-DUPLI-LIST-BLUE
+	   DUPLI-LIST-YELLOW
+	   DUPLI-LIST-BLUE))
+	(define FELLEISEN-LIST1 (cons YELLOW-SLIP1 NON-DUPLI-LIST-YELLOW))
+	(define FELLEISEN-LIST2 (cons YELLOW-SLIP2 NON-DUPLI-LIST-YELLOW))
+	(define SHIVERS-LIST1 (cons BLUE-SLIP1 NON-DUPLI-LIST-BLUE))
+	(define SHIVERS-LIST2 (cons BLUE-SLIP2 NON-DUPLI-LIST-BLUE))
+
+Test Case: 
+  (test-equal?
+   "TC#1: Duplications detected correctly?"
+   (possible-roster? DUPLI-LIST-BLUE)
+   #f)
+Test Result: Success
+
+Test Case: 
+  (test-equal?
+   "TC#2: Duplications detected correctly?"
+   (possible-roster? MIX-LIST-BLUE)
+   #f)
+Test Result: Success
+
+Test Case: 
+  (test-equal?
+   "TC#3: Duplications detected correctly?"
+   (possible-roster? NON-DUPLI-LIST-BLUE)
+   #t)
+Test Result: Success
+
+Test Case: 
+  (test-equal?
+   "TC#4: Can we check correctly if a list is a felleisen-list"
+   (acceptable-felleisen-answer? MIX-LIST FELLEISEN-LIST1)
+   #t)
+Test Result: Success
+
+Test Case: 
+  (test-equal?
+   "TC#5: Can we check correctly if a list is a felleisen-list"
+   (acceptable-felleisen-answer? MIX-LIST FELLEISEN-LIST2)
+   #t)
+Test Result: Success
+
+Test Case: 
+  (test-equal?
+   "TC#6: Can we check correctly if a list is a felleisen-list"
+   (acceptable-felleisen-answer? MIX-LIST-YELLOW FELLEISEN-LIST2)
+   #t)
+Test Result: Success
+
+Test Case: 
+  (test-equal?
+   "TC#7: Correct felleisen roster?"
+   (or (set-equal? (felleisen-roster MIX-LIST) FELLEISEN-LIST1)
+       (set-equal? (felleisen-roster MIX-LIST) FELLEISEN-LIST2))
+   #t)
+Test Result: Success
+
+Test Case: 
+  (test-equal?
+   "TC#8: Correct felleisen roster?"
+   (felleisen-roster MIX-LIST-BLUE)
+   '())
+Test Result: Success
+
+Test Case: 
+  (test-equal?
+   "TC#9: Correct shivers roster?"
+   (or (set-equal? (shivers-roster MIX-LIST) SHIVERS-LIST1)
+       (set-equal? (shivers-roster MIX-LIST) SHIVERS-LIST2))
+   #t)
+Test Result: Success
+
+Test Case: 
+  (test-equal?
+   "TC#10: Correct shivers roster?"
+   (shivers-roster MIX-LIST-YELLOW)
+   '())
+Test Result: Success
+
+
+Results for Suite class-lists-tests:
+  Test Successes: 10
+  Test Failures: 0
+  Test Errors: 0
+
+Raw Score: 10/10
+Normalized Score: 15/15
+
+
+Overall Results:
+  Test Successes: 34
+  Test Failures: 0
+  Test Errors: 0
+
+Raw Score: 34/34
+Normalized Score: 15/15
+

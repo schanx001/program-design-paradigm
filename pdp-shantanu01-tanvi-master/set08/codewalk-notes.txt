@@ -1,0 +1,19 @@
+TA-1 Name:- Sujith 
+TA-2 Name:- Vinay
+
+Design Grade for q1:-A
+Design Grade for q2:-A
+Correctness Score for q1:-15/15
+Correctness Score for q2:-15/15
+
+TA Comments on Design for q1:-
+
+TA Comments on Design for q2:-
+
+Student1 CCIS ID:-
+Presentation Grade:-
+TA Comments on Presentation:-A
+
+Student2 CCIS ID:-
+Presentation Grade:-
+TA Comments on Presentation:-A

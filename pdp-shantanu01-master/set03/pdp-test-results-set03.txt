@@ -1,0 +1,170 @@
+PDP Test Report for set03
+
+
+Test Name: screensaver-1-tests
+Definitions:
+	(define PAUSE-KEY " ")
+	(define INITIAL-WORLD (initial-world "Any"))
+	(define UNPAUSED-INITIAL-WORLD (world-after-key-event INITIAL-WORLD PAUSE-KEY))
+	(define CIRCLE-NEAR-EDGE (new-circle 10 10 30 20))
+	(define WORLD-AFTER-10-TICKS
+	  (world-after-tick
+	   (world-after-tick
+	    (world-after-tick
+	     (world-after-tick
+	      (world-after-tick
+	       (world-after-tick
+	        (world-after-tick
+	         (world-after-tick
+	          (world-after-tick (world-after-tick UNPAUSED-INITIAL-WORLD)))))))))))
+	(define WORLD-AFTER-20-TICKS
+	  (world-after-tick
+	   (world-after-tick
+	    (world-after-tick
+	     (world-after-tick
+	      (world-after-tick
+	       (world-after-tick
+	        (world-after-tick
+	         (world-after-tick
+	          (world-after-tick (world-after-tick WORLD-AFTER-10-TICKS)))))))))))
+
+Test Case: 
+  (test-equal? "TC#1: Initial world is paused?" (world-paused? INITIAL-WORLD) #t)
+Test Result: Success
+
+Test Case: 
+  (test-equal?
+   "TC#2: Can we unpause the world?"
+   (world-paused? UNPAUSED-INITIAL-WORLD)
+   #f)
+Test Result: Success
+
+Test Case: 
+  (test-equal?
+   "TC#3: Circle1 x-co ord after tick"
+   (circ-x (world-circ1 (world-after-tick UNPAUSED-INITIAL-WORLD)))
+   (+ 200 -12))
+Test Result: Success
+
+Test Case: 
+  (test-equal?
+   "TC#4: Circ1 y-co ord after tick"
+   (circ-y (world-circ1 (world-after-tick UNPAUSED-INITIAL-WORLD)))
+   (+ 100 20))
+Test Result: Success
+
+Test Case: 
+  (test-equal?
+   "TC#5: vx reversed?"
+   (circ-vx (world-circ1 WORLD-AFTER-20-TICKS))
+   12)
+Test Result: Success
+
+Test Case: 
+  (test-equal?
+   "TC#6: vy reversed?"
+   (circ-vy (world-circ1 WORLD-AFTER-10-TICKS))
+   -20)
+Test Result: Success
+
+
+Results for Suite screensaver-1-tests:
+  Test Successes: 6
+  Test Failures: 0
+  Test Errors: 0
+
+Raw Score: 6/6
+Normalized Score: 15/15
+
+
+Test Name: screensaver-2-tests
+Definitions:
+	(define CIRCLE-NEAR-EDGE (new-circle 45 55 30 20))
+	(define BUTTON-DOWN "button-down")
+	(define BUTTON-UP "button-up")
+	(define DRAG "drag")
+	(define SELECTED-CIRCLE-NEAR-EDGE
+	  (circ-after-mouse-event CIRCLE-NEAR-EDGE 32 32 BUTTON-DOWN))
+	(define WORLD-CIRCLE-PERFECT-BOUNCE
+	  (world-after-tick
+	   (world-after-tick
+	    (world-after-key-event
+	     (world-after-mouse-event
+	      (world-after-mouse-event
+	       (world-after-mouse-event (initial-world "Any") 200 100 "button-down")
+	       52
+	       240
+	       "drag")
+	      360
+	      260
+	      "button-up")
+	     " "))))
+
+Test Case: 
+  (test-equal?
+   "TC#1: Click outside the circle"
+   (circ-selected? (circ-after-mouse-event CIRCLE-NEAR-EDGE 100 100 BUTTON-DOWN))
+   #f)
+Test Result: Success
+
+Test Case: 
+  (test-equal?
+   "TC#2: Select circle"
+   (circ-selected? SELECTED-CIRCLE-NEAR-EDGE)
+   #t)
+Test Result: Success
+
+Test Case: 
+  (test-equal?
+   "TC#3: Unselect circle"
+   (circ-selected?
+    (circ-after-mouse-event SELECTED-CIRCLE-NEAR-EDGE 32 32 BUTTON-UP))
+   #f)
+Test Result: Success
+
+Test Case: 
+  (test-equal?
+   "TC#4: Smooth Drag circle y-co ord"
+   (circ-y (circ-after-mouse-event SELECTED-CIRCLE-NEAR-EDGE 60 80 DRAG))
+   103)
+Test Result: Success
+
+Test Case: 
+  (test-equal?
+   "TC#5: Smooth Drag cirle x-co ord"
+   (circ-x (circ-after-mouse-event SELECTED-CIRCLE-NEAR-EDGE 60 80 DRAG))
+   73)
+Test Result: Success
+
+Test Case: 
+  (test-equal?
+   "TC#6: Smooth Corner Bounce vx"
+   (circ-vx (world-circ1 WORLD-CIRCLE-PERFECT-BOUNCE))
+   12)
+Test Result: Success
+
+Test Case: 
+  (test-equal?
+   "TC#7: Smooth Corner Bounce vy"
+   (circ-vy (world-circ1 WORLD-CIRCLE-PERFECT-BOUNCE))
+   -20)
+Test Result: Success
+
+
+Results for Suite screensaver-2-tests:
+  Test Successes: 7
+  Test Failures: 0
+  Test Errors: 0
+
+Raw Score: 7/7
+Normalized Score: 15/15
+
+
+Overall Results:
+  Test Successes: 13
+  Test Failures: 0
+  Test Errors: 0
+
+Raw Score: 13/13
+Normalized Score: 15/15
+

@@ -1,0 +1,356 @@
+PDP Test Report for set10
+
+
+Test Name: q1-tests
+Definitions:
+	(define TOY-X 250)
+	(define TOY-Y 300)
+	(define (toy-moved-correctly? toy mx my)
+	  (local
+	   ((define TOY-AFTER-MOVE (send toy after-move mx my))
+	    (define TOY-AFTER-MOVE-X (send toy toy-x))
+	    (define TOY-AFTER-MOVE-Y (send toy toy-y))
+	    (define TOY-AFTER-MOVE-AND-TICK (send toy after-tick))
+	    (define TOY-AFTER-MOVE-AND-TICK-X (send toy toy-x))
+	    (define TOY-AFTER-MOVE-AND-TICK-Y (send toy toy-y)))
+	   (points-on-same-line?
+	    TOY-AFTER-MOVE-X
+	    TOY-AFTER-MOVE-Y
+	    mx
+	    my
+	    TOY-AFTER-MOVE-AND-TICK-X
+	    TOY-AFTER-MOVE-AND-TICK-Y)))
+	(define (throbbers-after-tick n throbber)
+	  (local
+	   ()
+	   (define RADIUS (send throbber toy-data))
+	   (send throbber after-tick)
+	   (cond
+	    ((= n 0) empty)
+	    (else (cons RADIUS (throbbers-after-tick (- n 1) throbber))))))
+	(define (throbbers-radius-less-than-max? n throbber)
+	  (andmap (lambda (x) (<= x 20)) (throbbers-after-tick n throbber)))
+	(define THROBBER-MIN-RADIUS 5)
+	(define THROBBER-MAX-RADIUS 20)
+
+Test Case: 
+  (test-equal?
+   "TC#1: Throbber's initial x-position should be 250."
+   (local () (define THROBBER (make-throbber TOY-X TOY-Y)) (send THROBBER toy-x))
+   TOY-X)
+Test Result: Success
+
+Test Case: 
+  (test-equal?
+   "TC#2: Throbber's initial y-position should be 300."
+   (local () (define THROBBER (make-throbber TOY-X TOY-Y)) (send THROBBER toy-y))
+   TOY-Y)
+Test Result: Success
+
+Test Case: 
+  (test-equal?
+   "TC#3: Throbber's initial radius should be 5."
+   (local
+    ()
+    (define THROBBER (make-throbber TOY-X TOY-Y))
+    (send THROBBER toy-data))
+   THROBBER-MIN-RADIUS)
+Test Result: Success
+
+Test Case: 
+  (test-equal?
+   "TC#4: Throbber's radius after tick should be greater than 5."
+   (local
+    ()
+    (define THROBBER (make-throbber TOY-X TOY-Y))
+    (send THROBBER after-tick)
+    (> (send THROBBER toy-data) THROBBER-MIN-RADIUS))
+   true)
+Test Result: Success
+
+Test Case: 
+  (test-equal?
+   "TC#5: Throbber's x-position after drag should be 270."
+   (local
+    ()
+    (define THROBBER (make-throbber TOY-X TOY-Y))
+    (send THROBBER after-button-down TOY-X TOY-Y)
+    (send THROBBER after-drag (+ TOY-X 20) (+ TOY-Y 20))
+    (send THROBBER after-button-up (+ TOY-X 20) (+ TOY-Y 20))
+    (send THROBBER toy-x))
+   (+ TOY-X 20))
+Test Result: Success
+
+Test Case: 
+  (test-equal?
+   "TC#6: Throbber's y-position after drag should be 320."
+   (local
+    ()
+    (define THROBBER (make-throbber TOY-X TOY-Y))
+    (send THROBBER after-button-down TOY-X TOY-Y)
+    (send THROBBER after-drag (+ TOY-X 20) (+ TOY-Y 20))
+    (send THROBBER after-button-up (+ TOY-X 20) (+ TOY-Y 20))
+    (send THROBBER toy-y))
+   (+ TOY-Y 20))
+Test Result: Success
+
+Test Case: 
+  (test-equal?
+   "TC#7: World should have 3 toys initialized at the center of the canvas."
+   (local
+    ()
+    (define METATOY (make-metatoy '()))
+    (send METATOY after-key-event "t")
+    (send METATOY after-key-event "c")
+    (send METATOY after-key-event "t")
+    (length (send METATOY get-toys)))
+   3)
+Test Result: Success
+
+Test Case: 
+  (test-equal?
+   "TC#8: Clock's initial x-position should be 250."
+   (local () (define CLOCK (make-clock TOY-X TOY-Y)) (send CLOCK toy-x))
+   TOY-X)
+Test Result: Success
+
+Test Case: 
+  (test-equal?
+   "TC#9: Clock's initial y-position should be 300."
+   (local () (define CLOCK (make-clock TOY-X TOY-Y)) (send CLOCK toy-y))
+   TOY-Y)
+Test Result: Success
+
+Test Case: 
+  (test-equal?
+   "TC#10: Clock next tick should be greater than previous tick."
+   (local
+    ()
+    (define CLOCK (make-clock TOY-X TOY-Y))
+    (send CLOCK after-tick)
+    (define PREVIOUS (send CLOCK toy-data))
+    (send CLOCK after-tick)
+    (define CURRENT (send CLOCK toy-data))
+    (> CURRENT PREVIOUS))
+   true)
+Test Result: Success
+
+Test Case: 
+  (test-equal?
+   "TC#11: Clock's x-position after drag should be 270."
+   (local
+    ()
+    (define CLOCK (make-clock TOY-X TOY-Y))
+    (send CLOCK after-button-down TOY-X TOY-Y)
+    (send CLOCK after-drag (+ TOY-X 20) (+ TOY-Y 20))
+    (send CLOCK after-button-up (+ TOY-X 20) (+ TOY-Y 20))
+    (send CLOCK toy-x))
+   (+ TOY-X 20))
+Test Result: Success
+
+Test Case: 
+  (test-equal?
+   "TC#12: Clock's y-position after drag should be 320."
+   (local
+    ()
+    (define CLOCK (make-clock TOY-X TOY-Y))
+    (send CLOCK after-button-down TOY-X TOY-Y)
+    (send CLOCK after-drag (+ TOY-X 20) (+ TOY-Y 20))
+    (send CLOCK after-button-up (+ TOY-X 20) (+ TOY-Y 20))
+    (send CLOCK toy-y))
+   (+ TOY-Y 20))
+Test Result: Success
+
+Test Case: 
+  (test-equal?
+   "TC#13: Throbber's x-position does not change on move."
+   (local
+    ()
+    (define THROBBER (make-throbber TOY-X TOY-Y))
+    (send THROBBER after-move (+ TOY-X 50) (+ TOY-Y 50))
+    (send THROBBER toy-x))
+   TOY-X)
+Test Result: Success
+
+Test Case: 
+  (test-equal?
+   "TC#14: Throbber's y-position does not change on move."
+   (local
+    ()
+    (define THROBBER (make-throbber TOY-X TOY-Y))
+    (send THROBBER after-move (+ TOY-X 50) (+ TOY-Y 50))
+    (send THROBBER toy-y))
+   TOY-Y)
+Test Result: Success
+
+Test Case: 
+  (test-equal?
+   "TC#15: Clock's x-position does not change on move."
+   (local
+    ()
+    (define CLOCK (make-clock TOY-X TOY-Y))
+    (send CLOCK after-move (+ TOY-X 50) (+ TOY-Y 50))
+    (send CLOCK toy-x))
+   TOY-X)
+Test Result: Success
+
+Test Case: 
+  (test-equal?
+   "TC#16: Clock's y-position does not change on move."
+   (local
+    ()
+    (define CLOCK (make-clock TOY-X TOY-Y))
+    (send CLOCK after-move (+ TOY-X 50) (+ TOY-Y 50))
+    (send CLOCK toy-y))
+   TOY-Y)
+Test Result: Success
+
+Test Case: 
+  (test-equal?
+   "TC#17: Throbber's incremental radius value should be <= 20."
+   (local
+    ()
+    (define THROBBER (make-throbber TOY-X TOY-Y))
+    (throbbers-radius-less-than-max? 21 THROBBER))
+   true)
+Test Result: Success
+
+Test Case: 
+  (test-equal?
+   "TC#18: Politician on the same line after move and tick"
+   (toy-moved-correctly? (make-politician TOY-X TOY-Y) 10 10)
+   true)
+Test Result: Success
+
+Test Case: 
+  (test-equal?
+   "TC#19: Politician on the same line after move and tick"
+   (toy-moved-correctly? (make-politician TOY-X TOY-Y) 100 100)
+   true)
+Test Result: Success
+
+Test Case: 
+  (test-equal?
+   "TC#20: Politician on the same line after move and tick"
+   (toy-moved-correctly? (make-politician TOY-X TOY-Y) 350 350)
+   true)
+Test Result: Success
+
+
+Results for Suite q1-tests:
+  Test Successes: 20
+  Test Failures: 0
+  Test Errors: 0
+
+Raw Score: 20/20
+Normalized Score: 15/15
+
+
+Test Name: q2-tests
+Definitions:
+	(define SBLOCK-1 (make-block 30 30 '()))
+	(define SBLOCK-2 (make-block 60 60 (list SBLOCK-1)))
+	(define SBLOCK-3 (make-block 90 90 (list SBLOCK-1 SBLOCK-2)))
+	(define SBLOCK-4 (make-block 120 120 (list SBLOCK-1 SBLOCK-2 SBLOCK-3)))
+
+Test Case: 
+  (test-equal?
+   "TC#1: Moving sblock 1 and checking x-coord - SBLOCK-1"
+   (local
+    ()
+    (send SBLOCK-1 after-button-down 34 34)
+    (send SBLOCK-1 after-drag 40 40)
+    (send SBLOCK-1 after-button-up 40 40)
+    (send SBLOCK-1 sblock-x))
+   36)
+Test Result: Success
+
+Test Case: 
+  (test-equal?
+   "TC#2: sblock 1 y-coord after previous move"
+   (local () (send SBLOCK-1 sblock-y))
+   36)
+Test Result: Success
+
+Test Case: 
+  (test-true
+   "TC#3: add teammates for sblock 1, two members"
+   (or (equal?
+        (local
+         ()
+         (send SBLOCK-1 add-teammate SBLOCK-2)
+         (send SBLOCK-1 add-teammate SBLOCK-3)
+         (length (send SBLOCK-1 get-team)))
+        2)
+       (equal?
+        (local
+         ()
+         (send SBLOCK-3 after-button-down 92 92)
+         (send SBLOCK-3 after-drag 57 57)
+         (send SBLOCK-3 after-drag 32 32)
+         (send SBLOCK-3 after-button-up 32 32)
+         (length (send SBLOCK-1 get-team)))
+        2)))
+Test Result: Success
+
+Test Case: 
+  (test-true
+   "TC#4: add teammates Complex 1"
+   (or (equal?
+        (local
+         ()
+         (send SBLOCK-3 add-teammate SBLOCK-4)
+         (length (send SBLOCK-4 get-team)))
+        3)
+       (equal?
+        (local
+         ()
+         (send SBLOCK-4 after-button-down 122 122)
+         (send SBLOCK-4 after-drag 35 35)
+         (send SBLOCK-4 after-button-up 35 35)
+         (length (send SBLOCK-1 get-team)))
+        3)))
+Test Result: Failure
+expression : (check-true (or (equal? (local () (send SBLOCK-3 add-teammate SBLOCK-4) (length (send SBLOCK-4 get-team))) 3) (equal? (local () (send SBLOCK-4 after-button-down 122 122) (send SBLOCK-4 after-drag 35 35) (send SBLOCK-4 after-button-up 35 35) (length (send SBLOCK-1 get-team))) 3)))
+params : (#f)
+
+Test Case: 
+  (test-equal?
+   "TC#5: add teammates Complex 2"
+   (local () (length (send SBLOCK-3 get-team)))
+   3)
+Test Result: Failure
+actual : 1
+expected : 3
+expression : (check-equal? (local () (length (send SBLOCK-3 get-team))) 3)
+params : (1 3)
+
+Test Case: 
+  (test-equal?
+   "TC#6: add teammates Complex 3"
+   (local () (length (send SBLOCK-1 get-team)))
+   3)
+Test Result: Failure
+actual : 2
+expected : 3
+expression : (check-equal? (local () (length (send SBLOCK-1 get-team))) 3)
+params : (2 3)
+
+
+Results for Suite q2-tests:
+  Test Successes: 3
+  Test Failures: 3
+  Test Errors: 0
+
+Raw Score: 3/6
+Normalized Score: 8/15
+
+
+Overall Results:
+  Test Successes: 23
+  Test Failures: 3
+  Test Errors: 0
+
+Raw Score: 23/26
+Normalized Score: 11/15
+

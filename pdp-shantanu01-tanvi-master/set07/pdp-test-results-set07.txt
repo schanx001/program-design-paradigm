@@ -1,0 +1,436 @@
+PDP Test Report for set07
+
+
+Test Name: q1-tests
+Definitions:
+	(define 1-WIDTH 1)
+	(define EMPTY-LIST '())
+	(define APP-EXPR-WTH-EMPTY-EXPRS (make-appexp 'empty-expr EMPTY-LIST))
+	(define EMPTY-FUNCTION-ARGS
+	  (list (make-def 'empty-func-args EMPTY-LIST APP-EXPR-WTH-EMPTY-EXPRS)))
+	(define EMPTY-FUNCTION-ARGS-STR
+	  (list "def empty-func-args () :" "    empty-expr" "     ()"))
+	(define SINGLE-VAR-EXP (list (make-def 'fn (list 'x) (make-varexp 'y))))
+	(define SINGLE-VAR-STR (list "def fn (x) :" "    y"))
+	(define SINGLE-APP-EXP
+	  (list (make-def 'fn (list 'x) (make-appexp 'fn1 (list (make-varexp 'y))))))
+	(define SINGLE-APP-STR (list "def fn (x) :" "    fn1(y)"))
+	(define LONG-FUNCTION-NAME-DEF
+	  (list
+	   (make-def
+	    'function-name-consisting-of-41-characters
+	    (list 'a)
+	    (make-appexp
+	     'variable-name-consisting-of-41-characters
+	     (list
+	      (make-varexp 'medium-size-variable-name)
+	      (make-varexp 'small-name))))))
+	(define LONG-FUNCTION-NAME-DEF-STR-2-LINES
+	  (list
+	   "def function-name-consisting-of-41-characters (a) :"
+	   "    variable-name-consisting-of-41-characters(medium-size-variable-name, small-name)"))
+	(define LONG-FUNCTION-NAME-DEF-STR-3-LINES
+	  (list
+	   "def function-name-consisting-of-41-characters (a) :"
+	   "    variable-name-consisting-of-41-characters(medium-size-variable-name,"
+	   "                                              small-name)"))
+	(define LONG-FUNCTION-NAME-DEF-STR-4-LINES
+	  (list
+	   "def function-name-consisting-of-41-characters (a) :"
+	   "    variable-name-consisting-of-41-characters"
+	   "     (medium-size-variable-name,"
+	   "      small-name)"))
+	(define LONG-FUNCTION-NAME-DEF-STR (list "" ""))
+	(define SINGLE-VAR-EXP-MULTIPLE-LINES
+	  (list (make-def 'fn (list 'x 'y 'z) (make-varexp 'a))))
+	(define SINGLE-VAR-STR-4-LINES
+	  (list "def fn (x," "        y," "        z) :" "    a"))
+	(define SINGLE-VAR-STR-2-LINES (list "def fn (x,y,z) :" "    a"))
+	(define NESTED-EXPR1
+	  (list
+	   (make-def
+	    'fn
+	    (list 'x 'y 'z)
+	    (make-appexp
+	     'fn1
+	     (list
+	      (make-appexp
+	       'fn2
+	       (list (make-varexp 'p) (make-varexp 'q) (make-varexp 'r))))))))
+	(define NESTED-EXPR1-STR-1-LINE
+	  (list "def fn (x,y,z) :" "    fn1(fn2(p, q, r))"))
+	(define NESTED-EXPR1-STR-2-LINES
+	  (list "def fn (x,y,z) :" "    fn1" "     (fn2(p, q, r))"))
+	(define NESTED-EXPR1-STR-4-LINES
+	  (list
+	   "def fn (x,"
+	   "        y,"
+	   "        z) :"
+	   "    fn1"
+	   "     (fn2(p,"
+	   "          q,"
+	   "          r))"))
+	(define NESTED-EXPR1-STR-5-LINES
+	  (list
+	   "def fn (x,"
+	   "        y,"
+	   "        z) :"
+	   "    fn1"
+	   "     (fn2"
+	   "       (p,"
+	   "        q,"
+	   "        r))"))
+	(define MULTIPLE-FUNCTION-DEF
+	  (list
+	   (make-def
+	    'a-very-long-function-name
+	    (list 'x)
+	    (make-appexp 'f1 (list (make-varexp 'x))))
+	   (make-def
+	    'f2
+	    (list 'x 'a-very-long-variable-name 'y)
+	    (make-appexp 'f1 (list (make-varexp 'y))))
+	   (make-def
+	    'f3
+	    (list 'x 'z 't 'u)
+	    (make-appexp
+	     'f1
+	     (list
+	      (make-appexp 'f2 (list (make-varexp 'z) (make-varexp 'y)))
+	      (make-varexp 'z)
+	      (make-appexp
+	       'f1
+	       (list
+	        (make-appexp 'f2 (list (make-varexp 'z) (make-varexp 'y)))
+	        (make-varexp 'z))))))))
+	(define MULTIPLE-FUNCTION-DEF-6-LINES-STR
+	  (list
+	   "def a-very-long-function-name (x) :"
+	   "    f1(x)"
+	   "def f2 (x,a-very-long-variable-name,y) :"
+	   "    f1(y)"
+	   "def f3 (x,z,t,u) :"
+	   "    f1(f2(z, y), z, f1(f2(z, y), z))"))
+	(define MULTIPLE-FUNCTION-DEF-8-LINES-STR
+	  (list
+	   "def a-very-long-function-name (x) :"
+	   "    f1(x)"
+	   "def f2 (x,"
+	   "        a-very-long-variable-name,"
+	   "        y) :"
+	   "    f1(y)"
+	   "def f3 (x,z,t,u) :"
+	   "    f1(f2(z, y), z, f1(f2(z, y), z))"))
+	(define MULTIPLE-FUNCTION-DEF-10-LINES-STR
+	  (list
+	   "def a-very-long-function-name (x) :"
+	   "    f1(x)"
+	   "def f2 (x,"
+	   "        a-very-long-variable-name,"
+	   "        y) :"
+	   "    f1(y)"
+	   "def f3 (x,z,t,u) :"
+	   "    f1(f2(z, y),"
+	   "       z,"
+	   "       f1(f2(z, y), z))"))
+	(define MULTIPLE-FUNCTION-DEF-11-LINES-STR
+	  (list
+	   "def a-very-long-function-name (x) :"
+	   "    f1(x)"
+	   "def f2 (x,"
+	   "        a-very-long-variable-name,"
+	   "        y) :"
+	   "    f1(y)"
+	   "def f3 (x,z,t,u) :"
+	   "    f1(f2(z, y),"
+	   "       z,"
+	   "       f1(f2(z, y),"
+	   "          z))"))
+	(define MULTIPLE-FUNCTION-DEF-22-LINES-STR
+	  (list
+	   "def a-very-long-function-name (x) :"
+	   "    f1"
+	   "     (x)"
+	   "def f2 (x,"
+	   "        a-very-long-variable-name,"
+	   "        y) :"
+	   "    f1"
+	   "     (y)"
+	   "def f3 (x,"
+	   "        z,"
+	   "        t,"
+	   "        u) :"
+	   "    f1"
+	   "     (f2"
+	   "       (z,"
+	   "        y),"
+	   "      z,"
+	   "      f1"
+	   "       (f2"
+	   "         (z,"
+	   "          y),"
+	   "        z))"))
+
+Test Case: 
+  (test-equal?
+   "TC#1: Empty List of Program Definitions"
+   (program-to-strings EMPTY-LIST 1-WIDTH)
+   EMPTY-LIST)
+Test Result: Success
+
+Test Case: 
+  (test-equal?
+   "TC#2: Empty List of Function Arguments and Empty List of Expression"
+   (program-to-strings EMPTY-FUNCTION-ARGS 1-WIDTH)
+   EMPTY-FUNCTION-ARGS-STR)
+Test Result: Success
+
+Test Case: 
+  (test-equal?
+   "TC#3: Single variable expression"
+   (program-to-strings SINGLE-VAR-EXP (max-line-width SINGLE-VAR-STR))
+   SINGLE-VAR-STR)
+Test Result: Success
+
+Test Case: 
+  (test-equal?
+   "TC#4: Single function application expression"
+   (program-to-strings SINGLE-APP-EXP (max-line-width SINGLE-APP-STR))
+   SINGLE-APP-STR)
+Test Result: Success
+
+Test Case: 
+  (test-equal?
+   "TC#5: Single variable expression with multiple arguments in function definition should display result on 2 lines"
+   (program-to-strings
+    SINGLE-VAR-EXP-MULTIPLE-LINES
+    (max-line-width SINGLE-VAR-STR-2-LINES))
+   SINGLE-VAR-STR-2-LINES)
+Test Result: Success
+
+Test Case: 
+  (test-equal?
+   "TC#6: Single variable expression with multiple arguments in function definition should display result on 4 lines"
+   (program-to-strings
+    SINGLE-VAR-EXP-MULTIPLE-LINES
+    (max-line-width SINGLE-VAR-STR-4-LINES))
+   SINGLE-VAR-STR-4-LINES)
+Test Result: Success
+
+Test Case: 
+  (test-equal?
+   "TC#7: Long Function Name and variable name split on 2 lines"
+   (program-to-strings
+    LONG-FUNCTION-NAME-DEF
+    (max-line-width LONG-FUNCTION-NAME-DEF-STR-2-LINES))
+   LONG-FUNCTION-NAME-DEF-STR-2-LINES)
+Test Result: Success
+
+Test Case: 
+  (test-equal?
+   "TC#8: Long Function Name and variable name split on 3 lines"
+   (program-to-strings
+    LONG-FUNCTION-NAME-DEF
+    (- (max-line-width LONG-FUNCTION-NAME-DEF-STR-2-LINES) 1))
+   LONG-FUNCTION-NAME-DEF-STR-3-LINES)
+Test Result: Success
+
+Test Case: 
+  (test-equal?
+   "TC#10: Nested function application expression which should display on a single line"
+   (program-to-strings NESTED-EXPR1 (max-line-width NESTED-EXPR1-STR-1-LINE))
+   NESTED-EXPR1-STR-1-LINE)
+Test Result: Success
+
+Test Case: 
+  (test-equal?
+   "TC#14: Multiple function definitions in 6 lines"
+   (program-to-strings
+    MULTIPLE-FUNCTION-DEF
+    (max-line-width MULTIPLE-FUNCTION-DEF-6-LINES-STR))
+   MULTIPLE-FUNCTION-DEF-6-LINES-STR)
+Test Result: Success
+
+Test Case: 
+  (test-equal?
+   "TC#15: Multiple function definitions in 8 lines"
+   (program-to-strings
+    MULTIPLE-FUNCTION-DEF
+    (- (max-line-width MULTIPLE-FUNCTION-DEF-6-LINES-STR) 4))
+   MULTIPLE-FUNCTION-DEF-8-LINES-STR)
+Test Result: Success
+
+Test Case: 
+  (test-equal?
+   "TC#16: Multiple function definitions in 10 lines"
+   (program-to-strings
+    MULTIPLE-FUNCTION-DEF
+    (- (max-line-width MULTIPLE-FUNCTION-DEF-6-LINES-STR) 17))
+   MULTIPLE-FUNCTION-DEF-10-LINES-STR)
+Test Result: Success
+
+Test Case: 
+  (test-equal?
+   "TC#17: Multiple function definitions in 11 lines"
+   (program-to-strings
+    MULTIPLE-FUNCTION-DEF
+    (- (max-line-width MULTIPLE-FUNCTION-DEF-6-LINES-STR) 21))
+   MULTIPLE-FUNCTION-DEF-11-LINES-STR)
+Test Result: Success
+
+
+Results for Suite q1-tests:
+  Test Successes: 13
+  Test Failures: 0
+  Test Errors: 0
+
+Raw Score: 13/13
+Normalized Score: 15/15
+
+
+Test Name: q2-tests
+Definitions:
+	(define DIFFICULTY 1000)
+	(define (scalable-stress-program n)
+	  (if (> n 0)
+	    (append
+	     (list
+	      (make-turn-right)
+	      (make-move-forward 10)
+	      (make-turn-right)
+	      (make-move-forward 10)
+	      (make-turn-left)
+	      (make-turn-left))
+	     (scalable-stress-program (- n 1)))
+	    empty))
+	(define PROBE-LARGE-INSTR-SET (scalable-stress-program DIFFICULTY))
+	(define PROBE-FORWARD-BY-1 (list (make-turn-right) (make-move-forward 1)))
+	(define PROBE-FORWARD-BY-2 (list (make-turn-left) (make-move-forward 2)))
+	(define PROBE-NO-FORWARD (list (make-turn-right) (make-turn-left)))
+	(define PROBE-LEFT-LEFT-FORWARD
+	  (list (make-turn-left) (make-turn-left) (make-move-forward 15)))
+	(define PROBE-FORWARD-EDGE
+	  (list
+	   (make-turn-right)
+	   (make-move-forward 1)
+	   (make-turn-right)
+	   (make-move-forward 15)
+	   (make-turn-right)
+	   (make-move-forward 20)
+	   (make-turn-right)
+	   (make-move-forward 1)))
+
+Test Case: 
+  (test-equal?
+   "TC#0: Proble to move forward by 1 step, x1 cannot be 19"
+   (probe-possible-outcome? 20 100 PROBE-FORWARD-BY-1 19 100)
+   #f)
+Test Result: Success
+
+Test Case: 
+  (test-equal?
+   "TC#1: Proble to move forward by 1 step, x1 can be 20"
+   (probe-possible-outcome? 20 100 PROBE-FORWARD-BY-1 20 100)
+   #t)
+Test Result: Success
+
+Test Case: 
+  (test-equal?
+   "TC#2: Proble to move forward by 1 step, x1 can be 23"
+   (probe-possible-outcome? 20 100 PROBE-FORWARD-BY-1 23 100)
+   #t)
+Test Result: Success
+
+Test Case: 
+  (test-equal?
+   "TC#3: Proble to move forward by 1 step, x1 can be 21 but y1 should be unchanged"
+   (probe-possible-outcome? 20 100 PROBE-FORWARD-BY-1 21 200)
+   #f)
+Test Result: Success
+
+Test Case: 
+  (test-equal?
+   "TC#4: Proble to move forward by 1 step, x1 can be 22"
+   (probe-possible-outcome? 20 100 PROBE-FORWARD-BY-1 22 100)
+   #t)
+Test Result: Success
+
+Test Case: 
+  (test-equal?
+   "TC#5: Proble to move forward by 2 step, x1 can be 100"
+   (probe-possible-outcome? 100 10 PROBE-FORWARD-BY-2 100 10)
+   #t)
+Test Result: Success
+
+Test Case: 
+  (test-equal?
+   "TC#6: Proble to move forward by 2 step, x1 can be 96"
+   (probe-possible-outcome? 100 10 PROBE-FORWARD-BY-2 96 10)
+   #t)
+Test Result: Success
+
+Test Case: 
+  (test-equal?
+   "TC#7: Proble to move forward by 2 step, x1 cannot be 95"
+   (probe-possible-outcome? 100 10 PROBE-FORWARD-BY-2 95 10)
+   #f)
+Test Result: Success
+
+Test Case: 
+  (test-equal?
+   "TC#8: Proble at same location, x1 should be at 100 and y1 can be 10"
+   (probe-possible-outcome? 100 10 PROBE-NO-FORWARD 100 10)
+   #t)
+Test Result: Success
+
+Test Case: 
+  (test-equal?
+   "TC#9: Proble moving downwards, x1 should remain unchanged and y1 can be between 36-40"
+   (probe-possible-outcome? 100 25 PROBE-LEFT-LEFT-FORWARD 100 38)
+   #t)
+Test Result: Success
+
+Test Case: 
+  (test-equal?
+   "TC#10: Proble moving downwards, x1 should remain unchanged and y1 can be between 36-40"
+   (probe-possible-outcome? 100 25 PROBE-LEFT-LEFT-FORWARD 100 40)
+   #t)
+Test Result: Success
+
+Test Case: 
+  (test-equal?
+   "TC#15: Proble edge conditions, x1 should be between 78-85 and y1 should be between 110-117"
+   (probe-possible-outcome? 100 100 PROBE-LEFT-LEFT-FORWARD 78 109)
+   #f)
+Test Result: Success
+
+Test Case: 
+  (test-equal?
+   "TC#15: Proble stress test, x1 and y1 can be (* 10 DIFFICULTY)"
+   (probe-possible-outcome?
+    0
+    0
+    PROBE-LARGE-INSTR-SET
+    (* 10 DIFFICULTY)
+    (* 10 DIFFICULTY))
+   #t)
+Test Result: Success
+
+
+Results for Suite q2-tests:
+  Test Successes: 13
+  Test Failures: 0
+  Test Errors: 0
+
+Raw Score: 13/13
+Normalized Score: 15/15
+
+
+Overall Results:
+  Test Successes: 26
+  Test Failures: 0
+  Test Errors: 0
+
+Raw Score: 26/26
+Normalized Score: 15/15
+

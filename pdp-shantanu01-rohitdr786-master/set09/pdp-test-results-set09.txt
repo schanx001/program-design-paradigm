@@ -1,0 +1,199 @@
+PDP Test Report for set09
+
+
+Test Name: q1-tests
+Definitions:
+	(define TOY-X 250)
+	(define TOY-Y 300)
+	(define (toy-moved-correctly? toy mx my)
+	  (local
+	   ((define TOY-AFTER-MOVE (send toy after-move mx my))
+	    (define TOY-AFTER-MOVE-AND-TICK (send TOY-AFTER-MOVE after-tick)))
+	   (points-on-same-line?
+	    (send TOY-AFTER-MOVE toy-x)
+	    (send TOY-AFTER-MOVE toy-y)
+	    (send TOY-AFTER-MOVE-AND-TICK toy-x)
+	    (send TOY-AFTER-MOVE-AND-TICK toy-y)
+	    mx
+	    my)))
+	(define (throbbers-after-tick n throbber)
+	  (cond
+	   ((= n 0) empty)
+	   (else
+	    (cons
+	     (send throbber toy-data)
+	     (throbbers-after-tick (- n 1) (send throbber after-tick))))))
+	(define (throbbers-radius-less-than-max? n throbber)
+	  (andmap (lambda (x) (<= x 20)) (throbbers-after-tick n throbber)))
+	(define THROBBER-MIN-RADIUS 5)
+	(define THROBBER-MAX-RADIUS 20)
+	(define THROBBER1 (make-throbber TOY-X TOY-Y))
+	(define CLOCK1 (make-clock TOY-X TOY-Y))
+	(define POLITICIAN (make-politician TOY-X TOY-Y))
+	(define INITIAL-METATOY (make-metatoy '()))
+
+Test Case: 
+  (test-equal?
+   "TC#1: Throbber's initial x-position should be 250."
+   (send THROBBER1 toy-x)
+   TOY-X)
+Test Result: Success
+
+Test Case: 
+  (test-equal?
+   "TC#2: Throbber's initial y-position should be 300."
+   (send THROBBER1 toy-y)
+   TOY-Y)
+Test Result: Success
+
+Test Case: 
+  (test-equal?
+   "TC#3: Throbber's initial radius should be 5."
+   (send THROBBER1 toy-data)
+   THROBBER-MIN-RADIUS)
+Test Result: Success
+
+Test Case: 
+  (test-equal?
+   "TC#4: Throbber's radius after tick should be greater than 5."
+   (> (send (send THROBBER1 after-tick) toy-data) THROBBER-MIN-RADIUS)
+   true)
+Test Result: Success
+
+Test Case: 
+  (test-equal?
+   "TC#5: Throbber's x-position after drag should be 270."
+   (send (send (send (send THROBBER1 after-button-down TOY-X TOY-Y) after-drag (+ TOY-X 20) (+ TOY-Y 20)) after-button-up (+ TOY-X 20) (+ TOY-Y 20)) toy-x)
+   (+ TOY-X 20))
+Test Result: Success
+
+Test Case: 
+  (test-equal?
+   "TC#6: Throbber's y-position after drag should be 320."
+   (send (send (send (send THROBBER1 after-button-down TOY-X TOY-Y) after-drag (+ TOY-X 20) (+ TOY-Y 20)) after-button-up (+ TOY-X 20) (+ TOY-Y 20)) toy-y)
+   (+ TOY-Y 20))
+Test Result: Success
+
+Test Case: 
+  (test-equal?
+   "TC#7: World should have 3 toys initialized at the center of the canvas."
+   (length
+    (send (send (send (send INITIAL-METATOY after-key-event "t") after-key-event "c") after-key-event "t") get-toys))
+   3)
+Test Result: Success
+
+Test Case: 
+  (test-equal?
+   "TC#8: Clock's initial x-position should be 250."
+   (send CLOCK1 toy-x)
+   TOY-X)
+Test Result: Success
+
+Test Case: 
+  (test-equal?
+   "TC#9: Clock's initial y-position should be 300."
+   (send CLOCK1 toy-y)
+   TOY-Y)
+Test Result: Success
+
+Test Case: 
+  (test-equal?
+   "TC#10: Clock next tick should be greater than previous tick."
+   (>
+    (send (send (send CLOCK1 after-tick) after-tick) toy-data)
+    (send (send CLOCK1 after-tick) toy-data))
+   true)
+Test Result: Success
+
+Test Case: 
+  (test-equal?
+   "TC#11: Clock's x-position after drag should be 270."
+   (send (send (send (send CLOCK1 after-button-down TOY-X TOY-Y) after-drag (+ TOY-X 20) (+ TOY-Y 20)) after-button-up (+ TOY-X 20) (+ TOY-Y 20)) toy-x)
+   (+ TOY-X 20))
+Test Result: Success
+
+Test Case: 
+  (test-equal?
+   "TC#12: Clock's y-position after drag should be 320."
+   (send (send (send (send CLOCK1 after-button-down TOY-X TOY-Y) after-drag (+ TOY-X 20) (+ TOY-Y 20)) after-button-up (+ TOY-X 20) (+ TOY-Y 20)) toy-y)
+   (+ TOY-Y 20))
+Test Result: Success
+
+Test Case: 
+  (test-equal?
+   "TC#13: Throbber's x-position does not change on move."
+   (send (send THROBBER1 after-move (+ TOY-X 50) (+ TOY-Y 50)) toy-x)
+   TOY-X)
+Test Result: Success
+
+Test Case: 
+  (test-equal?
+   "TC#14: Throbber's y-position does not change on move."
+   (send (send THROBBER1 after-move (+ TOY-X 50) (+ TOY-Y 50)) toy-y)
+   TOY-Y)
+Test Result: Success
+
+Test Case: 
+  (test-equal?
+   "TC#15: Clock's x-position does not change on move."
+   (send (send CLOCK1 after-move (+ TOY-X 50) (+ TOY-Y 50)) toy-x)
+   TOY-X)
+Test Result: Success
+
+Test Case: 
+  (test-equal?
+   "TC#16: Clock's y-position does not change on move."
+   (send (send CLOCK1 after-move (+ TOY-X 50) (+ TOY-Y 50)) toy-y)
+   TOY-Y)
+Test Result: Success
+
+Test Case: 
+  (test-equal?
+   "TC#17: Throbber's incremental radius value should be <= 20."
+   (throbbers-radius-less-than-max? 21 THROBBER1)
+   true)
+Test Result: Success
+
+Test Case: 
+  (test-equal?
+   "TC#18: Politician on the same line after move and tick"
+   (toy-moved-correctly? POLITICIAN 10 10)
+   true)
+Test Result: Failure
+actual : #f
+expected : #t
+expression : (check-equal? (toy-moved-correctly? POLITICIAN 10 10) true)
+params : (#f #t)
+
+Test Case: 
+  (test-equal?
+   "TC#19: Politician on the same line after move and tick"
+   (toy-moved-correctly? POLITICIAN 100 100)
+   true)
+Test Result: Success
+
+Test Case: 
+  (test-equal?
+   "TC#20: Politician on the same line after move and tick"
+   (toy-moved-correctly? POLITICIAN 350 350)
+   true)
+Test Result: Success
+
+
+Results for Suite q1-tests:
+  Test Successes: 19
+  Test Failures: 1
+  Test Errors: 0
+
+Raw Score: 19/20
+Normalized Score: 14/15
+
+
+Overall Results:
+  Test Successes: 19
+  Test Failures: 1
+  Test Errors: 0
+
+Raw Score: 19/20
+Normalized Score: 14/15
+

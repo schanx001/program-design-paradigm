@@ -1,0 +1,22 @@
+TA-1 Name:- Amit Narkhede
+TA-2 Name:- Ramasubramanian Chandrasekar
+
+Design Grade for q1:- A
+Correctness Score for q1:- 15/15
+ 
+TA Comments on Design for q1:-
+- Simulation looks okay. Not able to move the mouse over the politician!
+- Missing interpretation for change field in Throbber
+- time field of the Clock should be of type NonNegInt
+
+Student1 CCIS ID:- shantanu01
+Presentation Grade:- A
+TA Comments on Presentation:-
+- Could explain how the growing and shrinking of the throbber is handled in the design
+- Could also satisfactorily walk through the implementation of Clock
+
+Student2 CCIS ID:- rohitdr786
+Presentation Grade:- A
+TA Comments on Presentation:-
+- Could explain the politician implementation
+- How the movement towards the mouse position is maintained

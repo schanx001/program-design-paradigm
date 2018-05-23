@@ -1,0 +1,17 @@
+TA-1 Name:- Amit Kulkarni
+TA-2 Name:- Vinay Patil
+
+Student CCIS ID:- shantanu01
+Design Grade:- AB
+Correctness Score:- 12/15
+Presentation Grade:- A
+
+TA Comments on Presentation:- Loud and clear
+
+TA Comments on Design:-
+- CamelCase for the data type is recommended
+- No destructor template for machine input
+- Return datatype violates the contract of initial-state function in fsm
+- Accepting state can be condensed to shorter function
+- No datatype for Direction in probe.rkt
+- Error messages in the test cases need to be more elaborate

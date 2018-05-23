@@ -1,0 +1,98 @@
+PDP Test Report for set01
+
+
+Test Name: q-tests
+Definitions:
+
+Test Case: 
+  (test-true
+   "The last character of string 'DrRacket' should be 't'"
+   (let ((c (string-last "DrRacket")))
+     (or (and (char? c) (char=? c #\t)) (string=? c "t"))))
+Test Result: Success
+
+Test Case: 
+  (test-equal?
+   "a rectangle image with width 3 length 5 should have area 15 "
+   (image-area (rectangle 3 5 "solid" "yellow"))
+   15)
+Test Result: Success
+
+Test Case: 
+  (test-equal?
+   "the image of circle with radios 2 should have area 16"
+   (image-area (circle 2 "solid" "yellow"))
+   16)
+Test Result: Success
+
+Test Case: 
+  (test-equal?
+   "insert to the front of a non-empty string"
+   (string-insert "Racket" 0)
+   "_Racket")
+Test Result: Success
+
+Test Case: 
+  (test-equal?
+   "insert to the middle of a non-empty string"
+   (string-insert "Racket" 2)
+   "Ra_cket")
+Test Result: Success
+
+Test Case: 
+  (test-equal?
+   "insert to the last of a non-empty string"
+   (string-insert "Racket" 6)
+   "Racket_")
+Test Result: Success
+
+Test Case: 
+  (test-equal? "insert to an empty string" (string-insert "" 0) "_")
+Test Result: Success
+
+Test Case: 
+  (test-equal?
+   "delete the first position from string"
+   (string-delete "Racket" 0)
+   "acket")
+Test Result: Success
+
+Test Case: 
+  (test-equal?
+   "delete the middle position from string"
+   (string-delete "Racket" 2)
+   "Raket")
+Test Result: Success
+
+Test Case: 
+  (test-equal?
+   "delete the last position from string"
+   (string-delete "Racket" 5)
+   "Racke")
+Test Result: Success
+
+Test Case: 
+  (test-equal?
+   "Distance of (4,3) from origin should be 5"
+   (distance-to-origin 4 3)
+   5)
+Test Result: Success
+
+
+Results for Suite q-tests:
+  Test Successes: 11
+  Test Failures: 0
+  Test Errors: 0
+
+Raw Score: 11/11
+Normalized Score: 15/15
+
+
+Overall Results:
+  Test Successes: 11
+  Test Failures: 0
+  Test Errors: 0
+
+Raw Score: 11/11
+Normalized Score: 15/15
+

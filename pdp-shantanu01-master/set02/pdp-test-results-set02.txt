@@ -1,0 +1,198 @@
+PDP Test Report for set02
+
+
+Test Name: fsm-tests
+Definitions:
+
+Test Case: 
+  (test-equal?
+   "fsm.rkt: string 'qu' should not reach accepted state"
+   (accepting-state? (next-state (next-state (initial-state 0) "q") "u"))
+   false)
+Test Result: Success
+
+Test Case: 
+  (test-equal?
+   "fsm.rkt: string 'uabdefe' should be accepted by the machine"
+   (accepting-state?
+    (next-state
+     (next-state
+      (next-state
+       (next-state
+        (next-state (next-state (next-state (initial-state 0) "u") "a") "b")
+        "d")
+       "e")
+      "f")
+     "e"))
+   true)
+Test Result: Success
+
+Test Case: 
+  (test-equal?
+   "fsm.rkt: string 'quef' should put the machine in the error state"
+   (error-state?
+    (next-state
+     (next-state (next-state (next-state (initial-state 0) "q") "u") "e")
+     "f"))
+   true)
+Test Result: Success
+
+Test Case: 
+  (test-true
+   "fsm.rkt: string 'bd' should reach accepted state"
+   (accepting-state? (next-state (next-state (initial-state 0) "b") "d")))
+Test Result: Success
+
+
+Results for Suite fsm-tests:
+  Test Successes: 4
+  Test Failures: 0
+  Test Errors: 0
+
+Raw Score: 4/4
+Normalized Score: 15/15
+
+
+Test Name: snack-machine-tests
+Definitions:
+	(define MACHINE (initial-machine 2 5))
+
+Test Case: 
+  (test-equal?
+   "snack-machine.rkt: after inserting 200 cents and selecting 'kale' snack, MACHINE should have 1 'kale' snack"
+   (machine-remaining-kale
+    (machine-next-state (machine-next-state MACHINE 8) "kale"))
+   1)
+Test Result: Success
+
+Test Case: 
+  (test-equal?
+   "snack-machine.rkt: after inserting 100 cents, selecting 'carrots' and then selecting 'change', MACHINE should output 50 cents"
+   (machine-output
+    (machine-next-state (machine-next-state MACHINE 4) "carrots")
+    "change")
+   2)
+Test Result: Success
+
+Test Case: 
+  (test-equal?
+   "snack-machine.rkt: after inserting 25 cents and selecting 'carrots', MACHINE should output 'Nothing'"
+   (machine-output (machine-next-state MACHINE 1) "carrots")
+   "Nothing")
+Test Result: Success
+
+
+Results for Suite snack-machine-tests:
+  Test Successes: 3
+  Test Failures: 0
+  Test Errors: 0
+
+Raw Score: 3/3
+Normalized Score: 15/15
+
+
+Test Name: probe-tests
+Definitions:
+	(define INITIAL-PROBE (probe-at 0 0))
+	(define PROBE-WEST (probe-turned-left INITIAL-PROBE))
+	(define PROBE-SOUTH (probe-turned-left PROBE-WEST))
+	(define PROBE-EAST (probe-turned-right INITIAL-PROBE))
+	(define PROBE-NORTH (probe-turned-left PROBE-EAST))
+	(define PROBE-FORWARD-12-NORTH (probe-at 0 -12))
+	(define PROBE-FORWARD-23-EAST (probe-turned-right (probe-at 23 0)))
+	(define PROBE-NORTH-WALL (probe-at 0 -153))
+	(define PROBE-EAST-WALL (probe-turned-right (probe-at 153 0)))
+
+Test Case: 
+  (test-equal?
+   "probe.rkt: the initial probe should be facing north"
+   (probe-direction-equal? INITIAL-PROBE PROBE-NORTH)
+   true)
+Test Result: Success
+
+Test Case: 
+  (test-equal?
+   "probe.rkt: after a left turn, the initial probe should be facing west but shouldn't move"
+   (probe-location-equal? PROBE-WEST INITIAL-PROBE)
+   true)
+Test Result: Success
+
+Test Case: 
+  (test-equal?
+   "probe.rkt: after a left turn, a probe facing west should be facing south but shouldn't move"
+   (probe-location-equal? PROBE-SOUTH INITIAL-PROBE)
+   true)
+Test Result: Success
+
+Test Case: 
+  (test-equal?
+   "probe.rkt: after a right turn, the initial probe should be facing east and not south"
+   (probe-direction-equal? PROBE-EAST PROBE-SOUTH)
+   false)
+Test Result: Success
+
+Test Case: 
+  (test-equal?
+   "probe.rkt: after moving forward the distance 13, initial probe can be at coordinates (0,-12)"
+   (probe-forward-possible-outcome? INITIAL-PROBE 13 PROBE-FORWARD-12-NORTH)
+   true)
+Test Result: Success
+
+Test Case: 
+  (test-true
+   "probe.rkt: after moving forward the distance 13, the probe can be at coordinates (0, 0)"
+   (probe-forward-possible-outcome?
+    (probe-turned-left (probe-turned-left PROBE-FORWARD-12-NORTH))
+    13
+    PROBE-SOUTH))
+Test Result: Success
+
+Test Case: 
+  (test-equal?
+   "probe.rkt: after moving forward the distance 22, PROBE-EAST can be at coordinates (23, 0)"
+   (probe-forward-possible-outcome? PROBE-EAST 22 PROBE-FORWARD-23-EAST)
+   true)
+Test Result: Success
+
+Test Case: 
+  (test-true
+   "probe.rkt: after moving forward the distance 23, the probe can be at coordinates (0, 0)"
+   (probe-forward-possible-outcome?
+    (probe-turned-right (probe-turned-right PROBE-FORWARD-23-EAST))
+    23
+    PROBE-WEST))
+Test Result: Success
+
+Test Case: 
+  (test-equal?
+   "probe.rkt: moving forward the distance 100 INITIAL-PROBE can't reach PROBE-NORTH-WALL"
+   (probe-forward-possible-outcome? INITIAL-PROBE 100 PROBE-NORTH-WALL)
+   false)
+Test Result: Success
+
+Test Case: 
+  (test-equal?
+   "probe.rkt: moving forward the distance 153 PROBE-WEST can't reach PROBE-EAST-WALL"
+   (probe-forward-possible-outcome? PROBE-WEST 153 PROBE-EAST-WALL)
+   false)
+Test Result: Success
+
+
+Results for Suite probe-tests:
+  Test Successes: 10
+  Test Failures: 0
+  Test Errors: 0
+
+Raw Score: 10/10
+Normalized Score: 15/15
+
+
+Overall Results:
+  Test Successes: 17
+  Test Failures: 0
+  Test Errors: 0
+
+Raw Score: 17/17
+Normalized Score: 15/15
+
+Final Score: 12/15 (3 points deducted for manual Changes to successfully run test-suite)
